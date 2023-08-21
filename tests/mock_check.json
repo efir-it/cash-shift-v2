@@ -1,0 +1,54 @@
+[
+{
+"id": 1,
+"cash_shift_id": 1,
+"type_operation_id": 1,
+"date": "2022-01-01 10:00:00",
+"number": 123,
+"amount": 1000,
+"type_payment_id": 1,
+"number_fiscal_document": 456,
+"check_status_id": 1,
+"type_taxation_id": 1,
+"client_id": 1
+},
+{
+"id": 2,
+"cash_shift_id": 2,
+"type_operation_id": 2,
+"date": "2022-01-02 12:00:00",
+"number": 456,
+"amount": 2000,
+"type_payment_id": 2,
+"number_fiscal_document": 789,
+"check_status_id": 2,
+"type_taxation_id": 2,
+"client_id": 2
+},
+{
+"id": 3,
+"cash_shift_id": 3,
+"type_operation_id": 3,
+"date": "2022-01-03 14:00:00",
+"number": 789,
+"amount": 3000,
+"type_payment_id": 3,
+"number_fiscal_document": 101112,
+"check_status_id": 3,
+"type_taxation_id": 3,
+"client_id": 3
+},
+{
+"id": 4,
+"cash_shift_id": 4,
+"type_operation_id": 4,
+"date": "2022-01-04 16:00:00",
+"number": 101112,
+"amount": 4000,
+"type_payment_id": 4,
+"number_fiscal_document": 131415,
+"check_status_id": 4,
+"type_taxation_id": 4,
+"client_id": 4
+}
+]
