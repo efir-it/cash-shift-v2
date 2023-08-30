@@ -1,3 +1,4 @@
+import datetime
 from fastapi import APIRouter
 
 from cash_shift.dao import CashShiftDAO
@@ -21,6 +22,9 @@ async def get_cash_shift(id: int) -> CashShiftSchemas:
 
 @router.post('')
 async def add_cash_shift(item: dict):
+    format = "%Y-%m-%dT%H:%M:%S"
+    if "date" in item:
+        item["date"] = datetime.datetime.strptime(item["date"], format)
     return await CashShiftDAO.add(**item)
 
 
@@ -32,3 +36,5 @@ async def update_cash_shift(id: int, **data: dict):
 @router.delete('/{id}')
 async def delete_cash_shift(id: int):
     return await CashShiftDAO.delete(id)
+
+

@@ -25,3 +25,5 @@ class Check(Base):
     type_payment_id: Mapped[int] = mapped_column(ForeignKey("types_payment.id"))
     check_status_id: Mapped[int] = mapped_column(ForeignKey("check_statuses.id"))
     type_taxation_id: Mapped[int] = mapped_column(ForeignKey("types_taxation.id"))
+
+    #positions: Mapped[list["PositionCheck"]] = relationship(back_populates="check")

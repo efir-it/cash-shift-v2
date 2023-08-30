@@ -19,3 +19,4 @@ class PositionCheck(Base):
     client_id: Mapped[int] = mapped_column(nullable=False)
 
     check_id: Mapped[int] = mapped_column(ForeignKey("checks.id"))
+    #check: Mapped["Check"] = relationship(back_populates="positions")

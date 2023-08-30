@@ -36,7 +36,7 @@ class BaseDAO:
     model = None
 
     @classmethod
-    async def find_by_id(cls, id) -> dict:
+    async def find_by_id(cls, id):
         """
         Возвращает обьект атрибута model (класса модели - DAO.model).
 
@@ -55,10 +55,10 @@ class BaseDAO:
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(id=id)
             result = await session.execute(query)
-            return result.scalars().one().__dict__
+            return result.scalars().one()
 
     @classmethod
-    async def get_one_or_none(cls, **filter_by) -> Optional[dict]:
+    async def get_one_or_none(cls, **filter_by):
         """
         Возвращает обьект атрибута model (класса модели - DAO.model) или None.
 
@@ -79,12 +79,12 @@ class BaseDAO:
             result = await session.execute(query)
             result =  result.scalars_one_or_none()
             if result is not None:
-                return result.__dict__
+                return result
             else:
                 return None
 
     @classmethod
-    async def get_all(cls, **filter_by) -> list[dict]:
+    async def get_all(cls, **filter_by):
         """
         Возвращает список обьектов атрибута model (класса модели - DAO.model).
 
@@ -103,11 +103,11 @@ class BaseDAO:
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(**filter_by)
             result = await session.execute(query)
-            objects = [row[0].__dict__ for row in result.all()]
+            objects = [row[0] for row in result.all()]
             return objects
 
     @classmethod
-    async def add(cls, **data) -> dict:
+    async def add(cls, **data):
         """
         Добавляет в таблицу обьект атрибута model (класса модели - DAO.model).
 
@@ -126,10 +126,10 @@ class BaseDAO:
             query = insert(cls.model).values(**data).returning(cls.model)
             result = await session.execute(query)
             await session.commit()
-            return result.first()[0].__dict__
+            return result.first()[0]
 
     @classmethod
-    async def update(cls, id: int, data: dict) -> dict:
+    async def update(cls, id: int, data: dict):
         """
         Обновляет обьект атрибута model (класса модели - DAO.model).
 
@@ -155,10 +155,10 @@ class BaseDAO:
             )
             result = await session.execute(query)
             await session.commit()
-            return result.first()[0].__dict__
+            return result.first()[0]
 
     @classmethod
-    async def delete(cls, id: int) -> dict:
+    async def delete(cls, id: int):
         """
         Удаляет из таблицы обьект атрибута model (класса модели - DAO.model).
 
@@ -177,4 +177,4 @@ class BaseDAO:
             query = delete(cls.model).where(cls.model.id == id).returning(cls.model)
             result = await session.execute(query)
             await session.commit()
-            return result.first()[0].__dict__
+            return result.first()[0]

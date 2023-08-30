@@ -73,7 +73,7 @@ class Producer(BaseProducer):
                     "send_time": datetime.now(),
                 }
             )
-            message["eventId"] = event["id"]
+            message["eventId"] = event.id
             self.channel.basic_publish(
                 exchange="",
                 routing_key=queue,
@@ -85,7 +85,7 @@ class Producer(BaseProducer):
                 body=json.dumps(message),
             )
             event = await EventDAO.update(
-                id=event["id"], data={"status": "send", "message": str(message)}
+                id=event.id, data={"status": "send", "message": str(message)}
             )
 
     def connection_close(self):

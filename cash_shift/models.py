@@ -18,6 +18,7 @@ class CashShift(Base):
     rmk_id: Mapped[int] = mapped_column(nullable=False)
     worker_id: Mapped[int] = mapped_column(nullable=False)
     device_id: Mapped[int] = mapped_column(nullable=False)
-    status: Mapped[bool] = mapped_column(nullable=False, default=False)
+    status: Mapped[bool] = mapped_column(nullable=False, default="opened")
+    hide: Mapped[bool] = mapped_column(nullable=False, default=False)
 
     checks: Mapped[list["Check"]] = relationship("Check")
