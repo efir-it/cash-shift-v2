@@ -4,7 +4,7 @@ from cash_shift.dao import CashShiftDAO
 from cash_shift.schemas import CashShiftSchemas
 
 router = APIRouter(
-    prefix='/cash_shift',
+    prefix='/cash_shifts',
     tags=['Кассовые смены']
 )
 
@@ -15,8 +15,8 @@ async def get_cash_shifts() -> list[CashShiftSchemas]:
 
 
 @router.get('/{id}')
-async def get_cash_shift(model_id: int) -> CashShiftSchemas:
-    return await CashShiftDAO.find_by_id(model_id)
+async def get_cash_shift(id: int) -> CashShiftSchemas:
+    return await CashShiftDAO.find_by_id(id)
 
 
 @router.post('')
@@ -24,11 +24,11 @@ async def add_cash_shift(item: dict):
     return await CashShiftDAO.add(**item)
 
 
-@router.put('')
-async def update_cash_shift(model_id: int, **data: dict):
-    return await CashShiftDAO.update(model_id, **data)
+@router.put('/{id}')
+async def update_cash_shift(id: int, **data: dict):
+    return await CashShiftDAO.update(id, **data)
 
 
-@router.delete('/')
-async def delete_cash_shift(model_id: int):
-    return await CashShiftDAO.delete(model_id)
+@router.delete('/{id}')
+async def delete_cash_shift(id: int):
+    return await CashShiftDAO.delete(id)

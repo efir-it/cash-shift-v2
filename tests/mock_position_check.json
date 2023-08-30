@@ -1,0 +1,34 @@
+[
+    {
+        "product_id": 1,
+        "count": 2,
+        "price": 800,
+        "position": 1,
+        "client_id": 1,
+        "check_id": 1
+    },
+    {
+        "product_id": 2,
+        "count": 1,
+        "price": 200,
+        "position": 2,
+        "client_id": 1,
+        "check_id": 1
+    },
+    {
+        "product_id": 10,
+        "count": 1,
+        "price": 3000,
+        "position": 1,
+        "client_id": 4,
+        "check_id": 2
+    },
+    {
+        "product_id": 11,
+        "count": 1,
+        "price": 1200,
+        "position": 1,
+        "client_id": 17,
+        "check_id": 3
+    }
+]

@@ -7,5 +7,3 @@ class CheckStatusSchema(BaseModel):
 
     class Config:
         orm_mode = True
-
-

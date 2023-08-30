@@ -7,18 +7,15 @@ class PositionCheck(Base):
     """
     Модель позиции(строка) чека
     """
-    __tablename__ = 'position_check'
+
+    __tablename__ = "positions_check"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    check_id: Mapped[int] = mapped_column(ForeignKey("check.id"))
-    product_id: Mapped[int]
-    count: Mapped[int]
-    price: Mapped[int]
-    position: Mapped[int]
-    client_id: Mapped[int]
 
-    def __str__(self):
-        return f"type devices (id={self.id}, name=)"
+    product_id: Mapped[int] = mapped_column(nullable=False)
+    count: Mapped[int] = mapped_column(nullable=False, default=1)
+    price: Mapped[int] = mapped_column(nullable=False, default=0)
+    position: Mapped[int] = mapped_column(nullable=False)
+    client_id: Mapped[int] = mapped_column(nullable=False)
 
-    def __repr__(self):
-        return str(self)
+    check_id: Mapped[int] = mapped_column(ForeignKey("checks.id"))

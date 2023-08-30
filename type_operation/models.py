@@ -5,17 +5,12 @@ from database import Base
 
 class TypeOperation(Base):
     """
-    Модлель типа операции
+    Модель типа операции
     """
-    __tablename__ = 'type_operation'
+
+    __tablename__ = "types_operation"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(nullable=False)
 
-    check: Mapped["Check"] = relationship(back_populates="type_operation")
-
-    def __str__(self):
-        return f"type devices (id={self.id}, name={self.name})"
-
-    def __repr__(self):
-        return str(self)
+    checks: Mapped["Check"] = relationship("Check")

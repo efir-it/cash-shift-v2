@@ -1,12 +1,13 @@
 from datetime import datetime
 from fastapi import Depends, HTTPException, Request, status
+
 # from jose import jwt, JWTError
 
 from app.config import settings
 
 
 def get_token(request: Request):
-    token = request.cookies.get('')
+    token = request.cookies.get("")
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 

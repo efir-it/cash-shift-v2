@@ -1,5 +1,7 @@
 import asyncio
+import datetime
 import json
+import dateutil.parser
 
 import pytest
 from sqlalchemy import insert
@@ -15,10 +17,17 @@ from type_payment.models import TypePayment
 from type_taxation.models import TypeTaxation
 from cash_shift.models import CashShift
 
-from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
 from main import app as fastapi_app
+
+
+# custom Decoder
+def DecodeDateTime(empDict):
+    format = "%Y-%m-%dT%H:%M:%S"
+    if "date" in empDict:
+        empDict["date"] = datetime.datetime.strptime(empDict["date"], format)
+    return empDict
 
 @pytest.fixture(scope="session", autouse=True)
 async def prepare_database():
@@ -30,13 +39,13 @@ async def prepare_database():
 
     def open_mock_json(model: str):
         with open(f"./tests/mock_{model}.json", encoding="utf-8") as file:
-            return json.load(file)
+            return json.loads(file.read(), object_hook=DecodeDateTime)
 
     cash_shift = open_mock_json('cash_shift')
     check = open_mock_json('check')
     check_status = open_mock_json('check_status')
     position_check = open_mock_json('position_check')
-    type_operation = open_mock_json('type_operation')
+    type_operation = open_mock_json("type_operation")
     type_payment = open_mock_json('type_payment')
     type_taxation = open_mock_json('type_taxation')
 
@@ -49,14 +58,13 @@ async def prepare_database():
         add_type_payment = insert(TypePayment).values(type_payment)
         add_type_taxation = insert(TypeTaxation).values(type_taxation)
 
-        await session.execute(add_cash_shift)
-        await session.execute(add_check)
-        await session.execute(add_check_status)
-        await session.execute(add_position_check)
         await session.execute(add_type_operation)
         await session.execute(add_type_payment)
         await session.execute(add_type_taxation)
-
+        await session.execute(add_check_status)
+        await session.execute(add_cash_shift)
+        await session.execute(add_check)
+        await session.execute(add_position_check)
         await session.commit()
 
 
@@ -77,4 +85,3 @@ async def ac():
 async def session():
     async with async_session_maker() as session:
         yield session
-

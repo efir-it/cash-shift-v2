@@ -1,5 +1,6 @@
+import asyncio
 from starlette.middleware.cors import CORSMiddleware
-
+from event.base_consumer import Consumer
 from cash_shift.router import router as router_cash_shift
 from check.router import router as router_check
 from check_status.router import router as router_check_status
@@ -17,9 +18,13 @@ from fastapi_cache.decorator import cache
 
 from redis import asyncio as aioredis
 
-import pika
+class App(FastAPI):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.consumer = Consumer()
 
-app = FastAPI()
+
+app = App()
 
 app.include_router(router_cash_shift)
 app.include_router(router_check)
@@ -28,7 +33,6 @@ app.include_router(router_position_check)
 app.include_router(router_type_operation)
 app.include_router(router_type_payment)
 app.include_router(router_type_taxation)
-
 
 
 # app.middleware(
@@ -44,20 +48,8 @@ app.include_router(router_type_taxation)
 # )
 
 
-# @app.on_event("startup")
-# def startup():
-#     redis = aioredis.from_url("redis://localhost")
-#     FastAPICache.init(RedisBackend(redis), prefix="cache")
-#
-#
-# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-# channel = connection.channel()
-# channel.queue_declare(queue='hello')
-#
-#
-# channel.basic_publish(exchange='',
-#                       routing_key='hello',
-#                       body='Hello World!6456456445645')
-# print(" [x] Sent 'Hello World!'")
-#
-# connection.close()
+@app.on_event("startup")
+async def startup():
+    loop = asyncio.get_running_loop()
+    task = loop.create_task(app.consumer.consume(loop))
+    await task

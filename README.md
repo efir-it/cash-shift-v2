@@ -7,8 +7,7 @@
 <p>Запуск проекта: uvicorn main:app --reload</p>
 <p>Запуск тестов: pytest -v -s</p>
 
-<p>Запуск blake(стиль, форматирование кода): black check/dao.py --diff --color</p>
+<p>Запуск black(стиль, форматирование кода): black check/dao.py --diff --color</p>
 <p>Запуск flake(ошибки в коде, не используемые переменные, и тд): flake check/dao.py</p>
 <p>Запуск isort(сортировка импортов): isort main.py --diff(--diff чтобы показать разницу)</p>
 <p>Запуск autoflake(не используемые импорты): autoflake main.py --diff(--diff чтобы показать разницу) в файле настроек миграций env.py нужно проставить "# noqa", по умолчанию смотрит на встроенные библиотеки python </p>
-<p>Запуск pyright(проверка типов): pyright</p> 

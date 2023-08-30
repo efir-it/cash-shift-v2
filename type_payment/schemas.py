@@ -7,5 +7,3 @@ class TypePaymentSchema(BaseModel):
 
     class Config:
         orm_mode = True
-
-

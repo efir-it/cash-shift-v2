@@ -8,23 +8,16 @@ class CashShift(Base):
     """
     Модель кассовых смен
     """
-    __tablename__ = 'cash_shift'
+
+    __tablename__ = "cash_shifts"
 
     id: Mapped[int] = mapped_column(primary_key=True, unique=True)
-    date: Mapped[datetime]
-    organization_id: Mapped[int]
-    client_id: Mapped[int]
-    rmk_id: Mapped[int]
-    worker_id: Mapped[int]
-    device_id: Mapped[int]
-    status: Mapped[bool]
+    date: Mapped[datetime] = mapped_column(nullable=False)
+    organization_id: Mapped[int] = mapped_column(nullable=False)
+    client_id: Mapped[int] = mapped_column(nullable=False)
+    rmk_id: Mapped[int] = mapped_column(nullable=False)
+    worker_id: Mapped[int] = mapped_column(nullable=False)
+    device_id: Mapped[int] = mapped_column(nullable=False)
+    status: Mapped[bool] = mapped_column(nullable=False, default=False)
 
-    check: Mapped[list["Check"]] = relationship()
-
-    # def __str__(self):
-    #     return f"contractors(" \
-    #            f"id={self.id}, " \
-    #            f"name={self.name}, " \
-    #
-    # def __repr__(self):
-    #     return str(self)
+    checks: Mapped[list["Check"]] = relationship("Check")

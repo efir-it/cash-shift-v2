@@ -18,22 +18,22 @@ sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 # sys.path.append(app_path)
 
 
-
 from database import Base, DATABASE_URL
-from check.models import Check # noqa
-from check_status.models import CheckStatus # noqa
-from position_check.models import PositionCheck # noqa
-from type_operation.models import TypeOperation # noqa
-from type_payment.models import TypePayment # noqa
-from type_taxation.models import TypeTaxation # noqa
-from cash_shift.models import CashShift # noqa
+from check.models import Check
+from check_status.models import CheckStatus
+from position_check.models import PositionCheck
+from type_operation.models import TypeOperation
+from type_payment.models import TypePayment
+from type_taxation.models import TypeTaxation
+from cash_shift.models import CashShift
+from event.models import Event
 
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option('sqlalchemy.url', f"{DATABASE_URL}?async_fallback=True")
+config.set_main_option("sqlalchemy.url", f"{DATABASE_URL}?async_fallback=True")
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -90,9 +90,7 @@ def run_migrations_online():
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
