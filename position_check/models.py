@@ -18,5 +18,5 @@ class PositionCheck(Base):
     position: Mapped[int] = mapped_column(nullable=False)
     client_id: Mapped[int] = mapped_column(nullable=False)
 
-    check_id: Mapped[int] = mapped_column(ForeignKey("checks.id"))
-    #check: Mapped["Check"] = relationship(back_populates="positions")
+    check_id: Mapped[int] = mapped_column(ForeignKey("checks.id", ondelete="CASCADE"))
+    check: Mapped["Check"] = relationship("Check", back_populates="positions")

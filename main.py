@@ -18,6 +18,7 @@ from fastapi_cache.decorator import cache
 
 from redis import asyncio as aioredis
 
+
 class App(FastAPI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

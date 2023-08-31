@@ -22,7 +22,7 @@ class Consumer:
         "checkoutShift/eventAck": ConsumerMethods.process_incoming_ack,
         "checkoutShift/removeWorkplace": ConsumerMethods.process_incomig_remove_rmk,
         "checkoutShift/removeStore": ConsumerMethods.process_incoming_remove_store,
-        "checkoutShift/removeOrganization": ConsumerMethods.process_incoming_remove_organization
+        "checkoutShift/removeOrganization": ConsumerMethods.process_incoming_remove_organization,
     }
     events_consumer = process_incoming_message_methods.keys()
 

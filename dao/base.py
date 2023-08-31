@@ -77,7 +77,7 @@ class BaseDAO:
         async with async_session_maker() as session:
             query = select(cls.model).filter_by(**filter_by)
             result = await session.execute(query)
-            result =  result.scalars_one_or_none()
+            result = result.scalars_one_or_none()
             if result is not None:
                 return result
             else:

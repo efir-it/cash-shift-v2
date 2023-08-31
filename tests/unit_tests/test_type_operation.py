@@ -26,9 +26,7 @@ async def test_post_type_operation():
 
 
 async def test_put_type_operation():
-    response = client.put(
-        "/types_operation/1", json={"name": "type_operation_1_new"}
-    )
+    response = client.put("/types_operation/1", json={"name": "type_operation_1_new"})
     response_get = client.get("types_operation/1")
     assert response.status_code == 200
     assert response_get.status_code == 200

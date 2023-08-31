@@ -29,6 +29,7 @@ def DecodeDateTime(empDict):
         empDict["date"] = datetime.datetime.strptime(empDict["date"], format)
     return empDict
 
+
 @pytest.fixture(scope="session", autouse=True)
 async def prepare_database():
     assert settings.MODE == "TEST"
@@ -41,13 +42,13 @@ async def prepare_database():
         with open(f"./tests/mock_{model}.json", encoding="utf-8") as file:
             return json.loads(file.read(), object_hook=DecodeDateTime)
 
-    cash_shift = open_mock_json('cash_shift')
-    check = open_mock_json('check')
-    check_status = open_mock_json('check_status')
-    position_check = open_mock_json('position_check')
+    cash_shift = open_mock_json("cash_shift")
+    check = open_mock_json("check")
+    check_status = open_mock_json("check_status")
+    position_check = open_mock_json("position_check")
     type_operation = open_mock_json("type_operation")
-    type_payment = open_mock_json('type_payment')
-    type_taxation = open_mock_json('type_taxation')
+    type_payment = open_mock_json("type_payment")
+    type_taxation = open_mock_json("type_taxation")
 
     async with async_session_maker() as session:
         add_cash_shift = insert(CashShift).values(cash_shift)

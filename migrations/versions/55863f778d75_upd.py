@@ -1,8 +1,8 @@
-"""[fix] relationships
+"""[upd]
 
-Revision ID: cc7dbbf13026
-Revises: 3e792b221e14
-Create Date: 2023-08-30 14:45:44.967323
+Revision ID: 55863f778d75
+Revises: 71d217a13da8
+Create Date: 2023-08-31 15:13:57.694436
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "cc7dbbf13026"
-down_revision = "3e792b221e14"
+revision = "55863f778d75"
+down_revision = "71d217a13da8"
 branch_labels = None
 depends_on = None
 
