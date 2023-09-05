@@ -11,4 +11,4 @@ class RmkSchemas(BaseModel):
     send_time: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True

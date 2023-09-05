@@ -15,4 +15,4 @@ class CashShiftSchemas(BaseModel):
     hide: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True

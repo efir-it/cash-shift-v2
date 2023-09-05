@@ -16,4 +16,4 @@ class CheckSchema(BaseModel):
     type_taxation_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

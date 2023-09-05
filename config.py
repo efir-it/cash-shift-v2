@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -74,7 +74,7 @@ class Settings(BaseSettings):
         """
 
         env_file = ".env"
-        orm_mode = True
+        from_attributes = True
 
 
 settings = Settings()
