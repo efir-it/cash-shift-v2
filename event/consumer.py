@@ -9,7 +9,7 @@ class ConsumerMethods:
     async def process_incoming_ack(message):
         await message.ack()
         body = json.loads(message.body)
-        return await EventDAO.update(body["id"], {"status": "response_received"})
+        return await EventDAO.update(body["eventId"], {"status": "response_received"})
 
     @staticmethod
     async def process_incomig_remove_rmk(message):

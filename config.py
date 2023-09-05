@@ -66,6 +66,7 @@ class Settings(BaseSettings):
     RABBITMQ_PORT: int
     RABBITMQ_USER: str
     RABBITMQ_PASS: str
+    
 
     class Config:
         """
