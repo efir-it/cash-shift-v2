@@ -4,11 +4,11 @@ RUN mkdir /cash-shift-v2
 
 WORKDIR /cash-shift-v2
 
-COPY cash-shift-v2/requirements.txt .
+COPY requirements.txt .
 
 RUN pip install -r requirements.txt
 
-COPY cash-shift-v2/ .
+COPY . .
 
 RUN chmod a+x /cash-shift-v2/docker/*.sh
 
