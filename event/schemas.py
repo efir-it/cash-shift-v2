@@ -1,10 +1,11 @@
 from datetime import datetime
+import uuid
 
 from pydantic import BaseModel
 
 
-class RmkSchemas(BaseModel):
-    id: int
+class EventSchemas(BaseModel):
+    id: uuid.UUID
     status: str
     queue: str
     message: str

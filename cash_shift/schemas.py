@@ -1,17 +1,18 @@
+import uuid
 from pydantic import BaseModel
 from datetime import datetime
 
 
 class CashShiftSchemas(BaseModel):
-    id: int
+    id: uuid.UUID
     date: datetime
-    organization_id: int
-    client_id: int
-    store_id: int
-    workplace_id: int
-    personal_id: int
-    cash_registr_id: int
-    status: bool
+    organization_id: uuid.UUID
+    client_id: uuid.UUID
+    store_id: uuid.UUID
+    workplace_id: uuid.UUID
+    personal_id: uuid.UUID
+    cash_registr_id: uuid.UUID
+    closed: bool
     hide: bool
 
     class Config:

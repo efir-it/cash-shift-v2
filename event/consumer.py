@@ -15,7 +15,7 @@ class ConsumerMethods:
     async def process_incomig_remove_rmk(message):
         await message.ack()
         body = json.loads(message.body)
-        return await CheckoutShiftDAO.hide_by_rmk_id(body["workplaceId"])
+        return await CheckoutShiftDAO.hide_by_workplace_id(body["workplaceId"])
 
     @staticmethod
     async def process_incoming_remove_store(message):

@@ -1,19 +1,20 @@
+import uuid
 from pydantic import BaseModel
 from datetime import datetime
 
 
 class CheckSchema(BaseModel):
-    id: int
-    client_id: int
+    id: uuid.UUID
+    client_id: uuid.UUID
     date: datetime
     number: str
     amount: int
     number_fiscal_document: str
-    cash_shift_id: int
-    type_operation_id: int
-    type_payment_id: int
-    check_status_id: int
-    type_taxation_id: int
+    cash_shift_id: uuid.UUID
+    type_operation: str
+    type_payment: str
+    check_status: str
+    type_taxation: str
 
     class Config:
         from_attributes = True

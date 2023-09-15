@@ -6,7 +6,7 @@
         "rmk_id": 1,
         "worker_id": 1,
         "device_id": 1,
-        "status": true
+        "closed": true
     },
     {
         "date": "2023-08-24T07:16:09",
@@ -15,7 +15,7 @@
         "rmk_id": 2,
         "worker_id": 2,
         "device_id": 2,
-        "status": false
+        "closed": false
     },
     {
         "date": "2023-08-23T07:16:09",
@@ -24,6 +24,6 @@
         "rmk_id": 3,
         "worker_id": 3,
         "device_id": 1,
-        "status": false
+        "closed": false
     }
 ]

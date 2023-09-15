@@ -2,8 +2,7 @@
 Data access object - интерфейс для взаимодействия с базой данных.
 """
 
-from typing import Optional
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import Delete, Insert, Select, Update, delete, insert, select, update
 
 from database import async_session_maker
 
@@ -53,9 +52,9 @@ class BaseDAO:
             обьект атрибута model
         """
         async with async_session_maker() as session:
-            query = select(cls.model).filter_by(id=id)
+            query: Select = select(cls.model).filter_by(id=id)
             result = await session.execute(query)
-            return result.scalars().one()
+            return result.scalar()
 
     @classmethod
     async def get_one_or_none(cls, **filter_by):
@@ -71,13 +70,14 @@ class BaseDAO:
 
         Возвращаемое значение
         ---------------------
-        result.__dict__ : dict
+        result.scalars().one() : DAO.model
+            обьект атрибута model
         None
         """
         async with async_session_maker() as session:
-            query = select(cls.model).filter_by(**filter_by)
+            query: Select = select(cls.model).filter_by(**filter_by)
             result = await session.execute(query)
-            return result.scalars_one_or_none()
+            return result.scalar()
 
     @classmethod
     async def get_all(cls, **filter_by):
@@ -93,14 +93,13 @@ class BaseDAO:
 
         Возвращаемое значение
         ---------------------
-        objects : List[dict]
+        objects : List[DAO.model]
             список обьектов атрибута model
         """
         async with async_session_maker() as session:
-            query = select(cls.model).filter_by(**filter_by)
+            query: Select = select(cls.model).filter_by(**filter_by)
             result = await session.execute(query)
-            objects = [row[0] for row in result.all()]
-            return objects
+            return [row[0] for row in result.all()]
 
     @classmethod
     async def add(cls, **data):
@@ -116,16 +115,16 @@ class BaseDAO:
 
         Возвращаемое значение
         ---------------------
-        result: dict
+        None
         """
         async with async_session_maker() as session:
-            query = insert(cls.model).values(**data).returning(cls.model)
+            query: Insert = insert(cls.model).values(**data).returning(cls.model)
             result = await session.execute(query)
             await session.commit()
-            return result.first()[0]
+            return result.scalar()
 
     @classmethod
-    async def update(cls, id: int, data: dict):
+    async def update(cls, id, **data):
         """
         Обновляет обьект атрибута model (класса модели - DAO.model).
 
@@ -140,21 +139,21 @@ class BaseDAO:
 
         Возвращаемое значение
         ---------------------
-        result: dict
+        None
         """
         async with async_session_maker() as session:
-            query = (
+            query: Update = (
                 update(cls.model)
                 .where(cls.model.id == id)
-                .values(data)
+                .values(**data)
                 .returning(cls.model)
             )
             result = await session.execute(query)
             await session.commit()
-            return result.first()[0]
+            return result.scalar()
 
     @classmethod
-    async def delete(cls, id: int):
+    async def delete(cls, id):
         """
         Удаляет из таблицы обьект атрибута model (класса модели - DAO.model).
 
@@ -167,10 +166,12 @@ class BaseDAO:
 
         Возвращаемое значение
         ---------------------
-        result: dict
+
         """
         async with async_session_maker() as session:
-            query = delete(cls.model).where(cls.model.id == id).returning(cls.model)
+            query: Delete = (
+                delete(cls.model).where(cls.model.id == id).returning(cls.model)
+            )
             result = await session.execute(query)
             await session.commit()
-            return result.first()[0]
+            return result.scalar()

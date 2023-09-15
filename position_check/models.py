@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from database import Base
@@ -10,13 +11,13 @@ class PositionCheck(Base):
 
     __tablename__ = "positions_check"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
 
-    product_id: Mapped[int] = mapped_column(nullable=False)
+    product_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     count: Mapped[int] = mapped_column(nullable=False, default=1)
     price: Mapped[int] = mapped_column(nullable=False, default=0)
     position: Mapped[int] = mapped_column(nullable=False)
-    client_id: Mapped[int] = mapped_column(nullable=False)
+    client_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
 
-    check_id: Mapped[int] = mapped_column(ForeignKey("checks.id", ondelete="CASCADE"))
-    check: Mapped["Check"] = relationship("Check", back_populates="positions")
+    check_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("checks.id", ondelete="CASCADE"))
+    check: Mapped["Check"] = relationship(back_populates="positions")

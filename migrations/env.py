@@ -20,11 +20,7 @@ sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
 from database import Base, DATABASE_URL
 from check.models import Check
-from check_status.models import CheckStatus
 from position_check.models import PositionCheck
-from type_operation.models import TypeOperation
-from type_payment.models import TypePayment
-from type_taxation.models import TypeTaxation
 from cash_shift.models import CashShift
 from event.models import Event
 
