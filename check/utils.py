@@ -6,15 +6,21 @@ from auth.schemas import JWTUser
 
 
 def check_user(user: JWTUser, **kwargs) -> bool:
+    check_fields = ["clientId", "organizationId", "workerId"]
     if user.role == "client":
         return user.data.get("clientId") == kwargs.get("clientId")
 
     if user.role == "worker":
-        return user.data.get("clientId") == kwargs.get("clientId") and user.data.get(
-            "organizationId"
-        ) == kwargs.get("organizationId")
+        for field in check_fields:
+            field_from_request = kwargs.get(field, None)
+            if (
+                field_from_request is not None
+                and user.data.get(field) != field_from_request
+            ):
+                return False
 
-    return False
+    return True
+
 
 def change_format(body: dict) -> dict:
     result = {}
@@ -27,25 +33,22 @@ def change_format(body: dict) -> dict:
         "sum": "amount",
         "amount": "sum",
         "date": "date",
-        
         "client_id": "clientId",
         "clientId": "client_id",
-        
+        "reason_id": "reasonId",
+        "reasonId": "reason_id",
+        "worker_id": "workerId",
+        "workerId": "worker_id",
         "cash_shift_id": "checkoutShiftId",
         "checkoutShiftId": "cash_shift_id",
-        
         "check_status": "status",
         "status": "check_status",
-        
         "type_payment": "typePayment",
         "typePayment": "type_payment",
-        
         "type_operation": "typeOperation",
         "typeOperation": "type_operation",
-        
         "type_taxation": "taxSystem",
         "taxSystem": "type_taxation",
-        
         "positions": "positions",
     }
     for name in naming_map.keys():
@@ -53,24 +56,27 @@ def change_format(body: dict) -> dict:
             if isinstance(body[name], UUID):
                 result[naming_map[name]] = str(body[name])
             elif isinstance(body[name], datetime.datetime):
-                result[naming_map[name]] = datetime.datetime.strftime(body[name], "%Y-%m-%dT%H:%M:%S")
+                result[naming_map[name]] = datetime.datetime.strftime(
+                    body[name], "%Y-%m-%dT%H:%M:%S"
+                )
             else:
                 result[naming_map[name]] = body[name]
     return result
 
+
 class TypesPayment(enum.Enum):
-    CASH = "cash"
-    CASHLESS = 'cashless'
-    
+    TEST = 0
+    CASH = 1
+    CASHLESS = 2
+
+
 class CheckStatuses(enum.Enum):
-    CREATED = 'created'
-    CLOSED = 'closed'
-    RETURNED = "returned"
+    TEST = 0
+    CREATED = 1
+    CLOSED = 2
 
 
-    
-
-
-
-
-
+class TypesOperations(enum.Enum):
+    TEST = 0
+    SELL = 1
+    RETURN = 2

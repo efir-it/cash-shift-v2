@@ -21,6 +21,13 @@ class BaseProducer:
         self.connection = pika.BlockingConnection(params)
         self.channel = self.connection.channel()
 
+    def connection_close(self):
+        """
+        Закрытие соединения.
+
+        """
+        self.connection.close()
+
 
 class Producer(BaseProducer):
     """
@@ -64,36 +71,26 @@ class Producer(BaseProducer):
 
         for consumer in self.event_consumers:
             queue = f"{consumer}/{self.event}"
-            self.channel.queue_declare(queue=queue)
+            self.channel.queue_declare(queue=queue, durable=True)
             event = await EventDAO.add(
-                **{
+                data={
                     "status": "created",
                     "queue": queue,
                     "message": str(message),
-                    "send_time": datetime.now(),
+                    "send_time": datetime.utcnow(),
                 }
             )
             message["eventId"] = str(event.id)
+            message["ackDestination"] = f"{self.module}/eventAck"
             self.channel.basic_publish(
                 exchange="",
                 routing_key=queue,
-                properties=pika.BasicProperties(
-                    reply_to=f"{self.module}/eventAck",
-                    correlation_id=str(uuid.uuid4()),
-                    type="not_response",
-                ),
                 body=json.dumps(message),
             )
             event = await EventDAO.update(
-                id=event.id, **{"status": "send", "message": str(message)}
+                filter_by={"id": event.id},
+                data={"status": "send", "message": str(message)},
             )
-
-    def connection_close(self):
-        """
-        Закрытие соединения.
-
-        """
-        self.connection.close()
 
 
 class AckProducer(BaseProducer):
@@ -101,19 +98,15 @@ class AckProducer(BaseProducer):
 
     def __init__(self, message) -> None:
         super().__init__()
-        self.queue = message.routing_key
-        self.body = message.body
+        self.body = json.loads(message.body)
+        self.queue = self.body["ackDestination"]
+        self.channel.queue_declare(queue=self.queue, durable=True)
 
-    def send_ack(self, status: str):
+    def send_ack(self):
         self.channel.basic_publish(
             exchange="",
             routing_key=self.queue,
-            properties=pika.BasicProperties(type="response"),
             body=json.dumps(
-                {
-                    "eventId": self.body["eventId"],
-                    "status": status,
-                    "module": self.module,
-                }
+                {"eventId": self.body["eventId"], "ackDestination": self.queue}
             ),
         )

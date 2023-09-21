@@ -1,8 +1,11 @@
 import uuid
-from pydantic import BaseModel
+
+from pydantic import BaseModel, ConfigDict
 
 
 class PositionCheckSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID
     product_id: uuid.UUID
     count: int
@@ -10,6 +13,3 @@ class PositionCheckSchema(BaseModel):
     position: int
     client_id: uuid.UUID
     check_id: uuid.UUID
-
-    class Config:
-        from_attributes = True

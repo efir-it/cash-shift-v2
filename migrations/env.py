@@ -1,14 +1,11 @@
+import importlib.util as iu
 import os
 import sys
 from logging.config import fileConfig
-from os.path import dirname, abspath
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from os.path import abspath, dirname
 
 from alembic import context
-
-import importlib.util as iu
+from sqlalchemy import engine_from_config, pool
 
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
@@ -18,12 +15,11 @@ sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 # sys.path.append(app_path)
 
 
-from database import Base, DATABASE_URL
-from check.models import Check
-from position_check.models import PositionCheck
 from cash_shift.models import CashShift
+from check.models import Check
+from database import DATABASE_URL, Base
 from event.models import Event
-
+from position_check.models import PositionCheck
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

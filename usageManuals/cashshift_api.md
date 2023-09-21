@@ -31,9 +31,10 @@ Query
 {
     "clientId": str             | обязательное
     "organizationId": str,      | обязательное
-    "workplaceId": str,         | обязательное
-    "closed": bool              | не обязательное (по умолчанию False)
-    "hidden": bool              | не обязательное (по умолчанию False)
+    "workerId": str,            | не обязательное
+    "workplaceId": str,         | не обязательное
+    "closed": bool,             | не обязательное
+    "hidden": bool              | не обязательное
 }
 ```
 
@@ -48,10 +49,10 @@ Content-Type: "application/json"
         {
             "id": string,
             "clientId": string,
+            "workerId": string,
             "organizationId": string,
             "storeId": string,
             "workplaceId": string,
-            "personalId": string | null,
             "cashRegisterId": string,
             "closed": bool,
             "hidden": bool,
@@ -61,7 +62,7 @@ Content-Type: "application/json"
 }
 ```
 
-### <div id="usage-get">Получение информации кассовой смене</div>
+### <div id="usage-get">Получение информации о кассовой смене</div>
 
 #### API Endpoint
 HttpGet [apiHost]/checkoutShift/getCheckoutShift
@@ -71,6 +72,7 @@ HttpGet [apiHost]/checkoutShift/getCheckoutShift
 - В Headers есть поле Authorization с токеном "Bearer [token]"
 - Совпадают clientId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
+- Совпадают workerId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/getCheckoutShift (для работников)
 
 #### Request
@@ -80,6 +82,7 @@ Query
 {
     "clientId": string          | обязательное
     "organizationId": string    | обязательное
+    "workerId": string          | обязательное
     "checkoutShiftId": string   | обязательное
 }
 ```
@@ -97,7 +100,7 @@ Content-Type: "application/json"
     "organizationId": string,
     "storeId": string,
     "workplaceId": string,
-    "personalId": string | null,
+    "workerId": string,
     "cashRegisterId": string,
     "closed": bool,
     "hidden": bool,
@@ -105,23 +108,24 @@ Content-Type: "application/json"
     "cashReceipts": [
         {
             "id": string,
-            "client_id": string,
+            "clientId": string,
             "checkoutShiftId": string,
             "date": string,
             "sum": number,
             "cashRegisterCheckNumber": string,
             "fiscalDocumentNumber": string,
-            "typeOperation": string,
-            "taxSystem": string,
-            "typePayment": string,
-            "status": string,
+            "typeOperation": number,
+            "taxSystem": number,
+            "typePayment": number,
+            "status": number,
+            "reasonId": str | null,
             "positions": [
                 {
                     "id": string,
                     "productId": string,
-                    "count": string,
-                    "price": string,
-                    "positionNum": string
+                    "count": number,
+                    "price": number,
+                    "positionNum": number
                 }, ...
             ]
         }, ...
@@ -132,13 +136,14 @@ Content-Type: "application/json"
 ### <div id="usage-open">Открытие кассовой смены</div>
 
 #### API Endpoint
-HttpGet [apiHost]/checkoutShift/openCheckoutShift
+HttpPost [apiHost]/checkoutShift/openCheckoutShift
 
 #### Ограничения
 
 - В Headers есть поле Authorization с токеном "Bearer [token]"
 - Совпадают clientId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
+- Совпадают workerId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/openCheckoutShift (для работников)
 
 #### Request
@@ -148,6 +153,7 @@ Query
 {
     "clientId": string          | обязательное
     "organizationId": string    | обязательное
+    "workerId": string          | обязательное
 }
 Body
 Content-Type: "application/json"
@@ -168,10 +174,10 @@ Content-Type: "application/json"
 {
     "id": string,
     "clientId": string,
+    "workerId": string,
     "organizationId": string,
     "storeId": string,
     "workplaceId": string,
-    "personalId": string | null,
     "cashRegisterId": string,
     "closed": bool,
     "hidden": bool,
@@ -182,7 +188,7 @@ Content-Type: "application/json"
 ### <div id="usage-close">Закрытие кассовой смены</div>
 
 #### API Endpoint
-HttpGet [apiHost]/checkoutShift/closeCheckoutShift
+HttpPatch [apiHost]/checkoutShift/closeCheckoutShift
 
 #### Ограничения
 
@@ -198,6 +204,7 @@ Query
 {
     "clientId": string,         | обязательное
     "organizationId": string,   | обязательное
+    "workerId"" string,         | обязательное
     "checkoutShiftId": string   | обязательное
 }
 
@@ -216,7 +223,7 @@ Content-Type: "application/json"
     "organizationId": string,
     "storeId": string,
     "workplaceId": string,
-    "personalId": string | null,
+    "workerId": string,
     "cashRegisterId": string,
     "closed": bool,
     "hidden": bool,
@@ -224,23 +231,24 @@ Content-Type: "application/json"
     "cashReceipts": [
         {
             "id": string,
-            "client_id": string,
+            "clientId": string,
             "checkoutShiftId": string,
             "date": string,
             "sum": number,
             "cashRegisterCheckNumber": string,
             "fiscalDocumentNumber": string,
-            "typeOperation": string,
-            "taxSystem": string,
-            "typePayment": string,
-            "status": string,
+            "typeOperation": number,
+            "taxSystem": number,
+            "typePayment": number,
+            "status": number,
+            "reasonId": str | null,
             "positions": [
                 {
                     "id": string,
                     "productId": string,
-                    "count": string,
-                    "price": string,
-                    "positionNum": string
+                    "count": number,
+                    "price": number,
+                    "positionNum": number
                 }, ...
             ]
         }, ...

@@ -20,19 +20,18 @@ class Consumer:
 
     process_incoming_message_methods = {
         "checkoutShift/eventAck": ConsumerMethods.process_incoming_ack,
-        "checkoutShift/removeWorkplace": ConsumerMethods.process_incomig_remove_rmk,
+        "checkoutShift/removeWorkplace": ConsumerMethods.process_incomig_remove_workplace,
         "checkoutShift/removeStore": ConsumerMethods.process_incoming_remove_store,
         "checkoutShift/removeOrganization": ConsumerMethods.process_incoming_remove_organization,
     }
     events_consumer = process_incoming_message_methods.keys()
 
     async def process_incoming_message(self, message):
-        result = await self.process_incoming_message_methods[message.routing_key](
-            message
-        )
-        if message.type != "response":
+        await self.process_incoming_message_methods[message.routing_key](message)
+        if message.routing_key != "checkoutShift/eventAck":
             ack_producer = AckProducer(message=message)
-            ack_producer.send_ack(status="successfully")
+            ack_producer.send_ack()
+            ack_producer.connection_close()
 
     async def consume(self, loop):
         """
@@ -55,4 +54,5 @@ class Consumer:
         for event in self.events_consumer:
             queue = await channel.declare_queue(event, durable=True)
             await queue.consume(self.process_incoming_message, no_ack=False)
+
         return connection

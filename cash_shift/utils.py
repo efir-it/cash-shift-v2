@@ -5,15 +5,21 @@ from auth.schemas import JWTUser
 
 
 def check_user(user: JWTUser, **kwargs) -> bool:
+    check_fields = ["clientId", "organizationId", "workerId"]
     if user.role == "client":
         return user.data.get("clientId") == kwargs.get("clientId")
 
     if user.role == "worker":
-        return user.data.get("clientId") == kwargs.get("clientId") and user.data.get(
-            "organizationId"
-        ) == kwargs.get("organizationId")
+        for field in check_fields:
+            field_from_request = kwargs.get(field, None)
+            if (
+                field_from_request is not None
+                and user.data.get(field) != field_from_request
+            ):
+                return False
 
-    return False
+    return True
+
 
 def change_format(body: dict) -> dict:
     result = {}
@@ -29,8 +35,8 @@ def change_format(body: dict) -> dict:
         "clientId": "client_id",
         "workplace_id": "workplaceId",
         "workplaceId": "workplace_id",
-        "personal_id": "personalId",
-        "personalId": "personal_id",
+        "worker_id": "workerId",
+        "workerId": "worker_id",
         "cash_registr_id": "cashRegistrId",
         "cashRegistrId": "cash_registr_id",
         "closed": "closed",
@@ -43,15 +49,9 @@ def change_format(body: dict) -> dict:
             if isinstance(body[name], UUID):
                 result[naming_map[name]] = str(body[name])
             elif isinstance(body[name], datetime.datetime):
-                result[naming_map[name]] = datetime.datetime.strftime(body[name], "%Y-%m-%dT%H:%M:%S")
+                result[naming_map[name]] = datetime.datetime.strftime(
+                    body[name], "%Y-%m-%dT%H:%M:%S"
+                )
             else:
                 result[naming_map[name]] = body[name]
     return result
-
-
-    
-
-
-
-
-

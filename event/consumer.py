@@ -1,7 +1,8 @@
 import json
+import uuid
 
-from event.dao import EventDAO
 from cash_shift.dao import CheckoutShiftDAO
+from event.dao import EventDAO
 
 
 class ConsumerMethods:
@@ -9,22 +10,27 @@ class ConsumerMethods:
     async def process_incoming_ack(message):
         await message.ack()
         body = json.loads(message.body)
-        return await EventDAO.update(body["eventId"], {"status": "response_received"})
+        await EventDAO.update(
+            filter_by={"id": uuid.UUID(body["eventId"])},
+            data={"status": "response_received"},
+        )
 
     @staticmethod
-    async def process_incomig_remove_rmk(message):
+    async def process_incomig_remove_workplace(message):
         await message.ack()
         body = json.loads(message.body)
-        return await CheckoutShiftDAO.hide_by_workplace_id(body["workplaceId"])
+        await CheckoutShiftDAO.hide_by({"workplace_id": uuid.UUID(body["workplaceId"])})
 
     @staticmethod
     async def process_incoming_remove_store(message):
         await message.ack()
         body = json.loads(message.body)
-        return await CheckoutShiftDAO.hide_by_store_id(body["storeId"])
+        await CheckoutShiftDAO.hide_by({"store_id": uuid.UUID(body["storeId"])})
 
     @staticmethod
     async def process_incoming_remove_organization(message):
         await message.ack()
         body = json.loads(message.body)
-        return await CheckoutShiftDAO.hide_by_organization_id(body["organizationId"])
+        await CheckoutShiftDAO.hide_by(
+            {"organization_id": uuid.UUID(body["organizationId"])}
+        )

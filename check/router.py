@@ -1,14 +1,15 @@
 import datetime
 import uuid
+
 from fastapi import APIRouter, Security
 from fastapi.responses import JSONResponse
+
 from auth.dependencies import get_current_user
 from auth.schemas import JWTUser
-
+from cash_shift.dao import CheckoutShiftDAO
 from check.dao import CheckDAO
-from check.schemas import CheckSchema
-from check.utils import CheckStatuses, change_format, check_user
-from event.producers import SaleCheckProducer, ReturnCheckProducer
+from check.utils import CheckStatuses, TypesOperations, change_format, check_user
+from event.producers import ReturnCheckProducer, SaleCheckProducer
 from exceptions import NotFound, PermissionDenied
 
 router = APIRouter(prefix="/checkoutShift", tags=["Чеки"])
@@ -23,15 +24,19 @@ async def get_check(
         get_current_user, scopes=["/checkoutShift/getCashReceipt"]
     ),
 ):
-    if not check_user(user, clientId=clientId, organizationId=organizationId):
+    if not check_user(
+        user,
+        clientId=clientId,
+        organizationId=organizationId,
+    ):
         raise PermissionDenied
-    
-    check = await CheckDAO.json_find_by_id(uuid.UUID(cashReceiptId))
+
+    check = await CheckDAO.json_find_one(id=uuid.UUID(cashReceiptId))
     if check:
         return JSONResponse(content=check, status_code=200)
     else:
         raise NotFound
-    
+
 
 @router.post("/createCashReceipt")
 async def add_check(
@@ -41,56 +46,29 @@ async def add_check(
     user: JWTUser = Security(
         get_current_user, scopes=["/checkoutShift/createCashReceipt"]
     ),
-    **body: dict
+    **body: dict,
 ):
-    if not check_user(user, clientId=clientId, organizationId=organizationId):
+    if not check_user(
+        user,
+        clientId=clientId,
+        organizationId=organizationId,
+    ):
         raise PermissionDenied
-    
-    data = change_format(**body)
-    data["client_id"] = uuid.UUID(clientId)
-    data["cash_shift_id"] = uuid.UUID(checkoutShiftId)
-    data["check_status"] = CheckStatuses.CREATED.value
-    data["date"] = datetime.datetime.utcnow()
-    check = await CheckDAO.json_add(**data)
-    if check:
-        return JSONResponse(content=check, status_code=200)
-    else:
-        raise NotFound
 
-
-@router.patch("/returnCashReceipt")
-async def return_check(
-    clientId: str,
-    organizationId: str,
-    cashReceiptId: str,
-    user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/returnCashReceipt"]
-    ),
-):
-    if not check_user(user, clientId=clientId, organizationId=organizationId):
-        raise PermissionDenied
-    
-    check = await CheckDAO.json_update(
-        uuid.UUID(cashReceiptId), **{"check_status": CheckStatuses.RETURNED.value}
+    check = await CheckDAO.json_add(
+        {
+            **change_format(**body),
+            "client_id": uuid.UUID(clientId),
+            "organization_id": uuid.UUID(organizationId),
+            "cash_shift_id": uuid.UUID(checkoutShiftId),
+            "check_status": CheckStatuses.CREATED.value,
+            "date": datetime.datetime.utcnow(),
+        }
     )
     if check:
-        producer = ReturnCheckProducer()
-        await producer.send_messages(
-            {
-                "cashReceiptId": check["id"],
-                "storeId": "384299e4-86ea-460a-978e-170f6aafad8f",
-                "clientId": clientId,
-                "organizationId": organizationId,
-                "createTime": check["date"],
-                "workerId": user.data.get("workerId", None),
-                "positions": check["positions"],
-            }
-        )
-        producer.connection_close()
         return JSONResponse(content=check, status_code=200)
     else:
         raise NotFound
-    
 
 
 @router.patch("/closeCashReceipt")
@@ -104,25 +82,46 @@ async def close_check(
 ):
     if not check_user(user, clientId=clientId, organizationId=organizationId):
         raise PermissionDenied
-    
+
     check = await CheckDAO.json_update(
-        uuid.UUID(cashReceiptId), **{"check_status": CheckStatuses.CLOSED.value}
+        id=uuid.UUID(cashReceiptId),
+        filter_by={
+            "client_id": uuid.UUID(clientId),
+            "organization_id": uuid.UUID(organizationId),
+        },
+        data={"check_status": CheckStatuses.CLOSED.value},
     )
-    
-    if check:
-        producer = SaleCheckProducer()
-        await producer.send_messages(
-            {
-                "cashReceiptId": check["id"],
-                "storeId": "384299e4-86ea-460a-978e-170f6aafad8f",
-                "clientId": clientId,
-                "organizationId": organizationId,
-                "createTime": check["date"],
-                "workerId":  user.data.get("workerId", None),
-                "positions": check["positions"],
-            }
+
+    if check is not None:
+        cash_shift = await CheckoutShiftDAO.json_find_one(
+            id=uuid.UUID(check["checkoutShiftId"])
         )
-        producer.connection_close()
+        producer = (
+            SaleCheckProducer()
+            if check["typeOperation"] == TypesOperations.SELL.value
+            else None
+        )
+        producer = (
+            ReturnCheckProducer()
+            if check["typeOperation"] == TypesOperations.RETURN.value
+            else producer
+        )
+        if producer is not None:
+            await producer.send_messages(
+                {
+                    "cashReceiptId": check["id"],
+                    "storeId": cash_shift["storeId"],
+                    "clientId": clientId,
+                    "organizationId": organizationId,
+                    "createTime": check["date"] + "+00:00",
+                    "workerId": cash_shift["workerId"],
+                    "positions": [
+                        {"productId": position["id"], "productCount": position["count"]}
+                        for position in check["positions"]
+                    ],
+                }
+            )
+            producer.connection_close()
         return JSONResponse(content=check, status_code=200)
     else:
         raise NotFound
@@ -139,8 +138,9 @@ async def remove_check(
 ):
     if not check_user(user, clientId=clientId, organizationId=organizationId):
         raise PermissionDenied
-    
-    check = await CheckDAO.json_remove(uuid.UUID(cashReceiptId))
+
+    check = await CheckDAO.json_remove(id=uuid.UUID(cashReceiptId))
+
     if check:
         return JSONResponse(content=check, status_code=200)
     else:

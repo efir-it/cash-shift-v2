@@ -1,10 +1,11 @@
 import datetime
 import uuid
+
 from fastapi import APIRouter, Security
 from fastapi.responses import JSONResponse
+
 from auth.dependencies import get_current_user
 from auth.schemas import JWTUser
-
 from cash_shift.dao import CheckoutShiftDAO
 from cash_shift.schemas import CashShiftSchemas
 from cash_shift.utils import change_format, check_user
@@ -17,23 +18,35 @@ router = APIRouter(prefix="/checkoutShift", tags=["Кассовые смены"]
 async def get_checkout_shift_list(
     clientId: str,
     organizationId: str,
-    workplaceId: str,
-    closed: bool = False,
-    hidden: bool = False,
+    workplaceId: str = None,
+    workerId: str = None,
+    closed: bool = None,
+    hidden: bool = None,
     user: JWTUser = Security(
         get_current_user, scopes=["/checkoutShift/getCheckoutShifts"]
     ),
 ):
-    if not check_user(user, clientId=clientId, organizationId=organizationId):
+    if not check_user(
+        user, clientId=clientId, organizationId=organizationId, workerId=workerId
+    ):
         raise PermissionDenied
-    
-    data = {
-        "workplace_id": workplaceId,
-        "closed": closed,
-        "hide": hidden,
+
+    filter_by = {
+        "client_id": uuid.UUID(clientId),
+        "organization_id": uuid.UUID(organizationId),
     }
 
-    checkout_shifts = await CheckoutShiftDAO.json_get_all(**data)
+    if workplaceId is not None:
+        filter_by["workplace_id"] = uuid.UUID(workplaceId)
+    if workerId is not None:
+        filter_by["worker_id"] = uuid.UUID(workerId)
+    if closed is not None:
+        filter_by["closed"] = closed
+    if hidden is not None:
+        filter_by["hide"] = hidden
+
+    checkout_shifts = await CheckoutShiftDAO.json_get_all(filter_by)
+
     return JSONResponse(content=checkout_shifts, status_code=200)
 
 
@@ -42,15 +55,25 @@ async def get_checkout_shift(
     clientId: str,
     organizationId: str,
     checkoutShiftId: str,
+    workerId: str,
     user: JWTUser = Security(
         get_current_user, scopes=["/checkoutShift/getCheckoutShift"]
     ),
 ):
-    if not check_user(user, clientId=clientId, organizationId=organizationId):
+    if not check_user(
+        user, clientId=clientId, organizationId=organizationId, workerId=workerId
+    ):
         raise PermissionDenied
-    
-    checkout_shift = await CheckoutShiftDAO.json_find_by_id(uuid.UUID(checkoutShiftId))
-    if checkout_shift:
+
+    checkout_shift = await CheckoutShiftDAO.json_find_one(
+        id=uuid.UUID(checkoutShiftId),
+        filter_by={
+            "organization_id": uuid.UUID(organizationId),
+            "client_id": uuid.UUID(clientId),
+            "worker_id": uuid.UUID(workerId),
+        },
+    )
+    if checkout_shift is not None:
         return JSONResponse(content=checkout_shift, status_code=200)
     else:
         raise NotFound
@@ -60,41 +83,56 @@ async def get_checkout_shift(
 async def open_checkout_shift(
     clientId: str,
     organizationId: str,
+    workerId: str,
     user: JWTUser = Security(
         get_current_user, scopes=["/checkoutShift/openCheckoutShift"]
     ),
-    **body: dict
+    **body: dict,
 ):
-    if not check_user(user, clientId=clientId, organizationId=organizationId):
+    if not check_user(
+        user, clientId=clientId, organizationId=organizationId, workerId=workerId
+    ):
         raise PermissionDenied
-    
-    data = change_format(**body)
-    data["client_id"] = uuid.UUID(clientId)
-    data["organization_id"] = uuid.UUID(organizationId)
-    data["date"] = datetime.datetime.utcnow()
-    checkout_shift = await CheckoutShiftDAO.json_add(**data)
-    
-    return JSONResponse(content=checkout_shift, status_code=200)
 
+    checkout_shift = await CheckoutShiftDAO.json_add(
+        {
+            **change_format(**body),
+            "client_id": uuid.UUID(clientId),
+            "organization_id": uuid.UUID(organizationId),
+            "worker_id": uuid.UUID(workerId),
+            "date": datetime.datetime.utcnow(),
+        }
+    )
+
+    return JSONResponse(content=checkout_shift, status_code=200)
 
 
 @router.patch("/closeCheckoutShift")
 async def close_checkout_shift(
     clientId: str,
     organizationId: str,
+    workerId: str,
     checkoutShiftId: str,
     user: JWTUser = Security(
         get_current_user, scopes=["/checkoutShift/closeCheckoutShift"]
     ),
 ):
-    if not check_user(user, clientId=clientId, organizationId=organizationId):
+    if not check_user(
+        user, clientId=clientId, organizationId=organizationId, workerId=workerId
+    ):
         raise PermissionDenied
-    
+
     checkout_shift = await CheckoutShiftDAO.json_update(
-        uuid.UUID(checkoutShiftId), **{"closed": True}
+        id=uuid.UUID(checkoutShiftId),
+        filter_by={
+            "client_id": uuid.UUID(clientId),
+            "organization_id": uuid.UUID(organizationId),
+            "worker_id": uuid.UUID(workerId),
+        },
+        data={"closed": True},
     )
-    
-    if checkout_shift:
+
+    if checkout_shift is not None:
         return JSONResponse(content=checkout_shift, status_code=200)
     else:
         raise NotFound

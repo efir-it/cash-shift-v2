@@ -4,12 +4,39 @@
 
 - [CashReceiptAPI](#main)
     - [Содержание](#content)
+    - [Предустановленные типы](#types)
     - [Использование](#usage)
         - [Получение чека](#usage-get)
         - [Создание чека](#usage-create)
         - [Возврат чека](#usage-return)
         - [Закрытие чека](#usage-close)
         - [Удаление чека](#usage-remove)
+
+## <div id="types">Предустановленные типы</div>
+
+### status
+
+enum принимающий следующие значения
+
+- Test = 0
+
+### taxSystem
+
+enum принимающий следующие значения
+
+- Test = 0
+
+### typePayment
+
+enum принимающий следующие значения
+
+- Test = 0
+
+### typeOperation
+
+enum принимающий следующие значения
+
+- Test = 0
 
 ## <div id="usage">Использование</div>
 
@@ -46,23 +73,24 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "client_id": string,
+    "clientId": string,
     "checkoutShiftId": string,
     "date": string,
     "sum": number,
     "cashRegisterCheckNumber": string,
     "fiscalDocumentNumber": string,
-    "typeOperation": string,
-    "taxSystem": string,
-    "typePayment": string,
-    "status": string,
+    "typeOperation": number,
+    "taxSystem": number,
+    "typePayment": number,
+    "reasonId": str | null,
+    "status": number,
     "positions": [
         {
             "id": string,
             "productId": string,
-            "count": string,
-            "price": string,
-            "positionNum": string
+            "count": number,
+            "price": number,
+            "positionNum": number
         }, ...
     ]
 }
@@ -71,7 +99,7 @@ Content-Type: "application/json"
 ### <div id="usage-create">Создание чека</div>
 
 #### API Endpoint
-HttpGet [apiHost]/checkoutShift/createCashReceipt
+HttpPost [apiHost]/checkoutShift/createCashReceipt
 
 #### Ограничения
 
@@ -95,14 +123,15 @@ Content-Type: "application/json"
     "sum": number,
     "cashRegisterCheckNumber": string,
     "fiscalDocumentNumber": string,
-    "typeOperation": string
-    "taxSystem": string
-    "typePayment": string
+    "typeOperation": number 
+    "taxSystem": number
+    "typePayment": number   
+    "reasonId": str | null      | (обязательное для typeOperation - Возврат)
     "positions": [
         {
             "productId": string,
-            "count": string,
-            "price": string,
+            "count": number,
+            "price": number,
         }, ...
     ]
 }
@@ -117,85 +146,33 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "client_id": string,
+    "clientId": string,
     "checkoutShiftId": string,
     "date": string,
     "sum": number,
     "cashRegisterCheckNumber": string,
     "fiscalDocumentNumber": string,
-    "typeOperation": string,
-    "taxSystem": string,
-    "typePayment": string,
-    "status": string,
+    "typeOperation": number,
+    "taxSystem": number,
+    "typePayment": number,
+    "status": number,
+    "reasonId": str | null,
     "positions": [
         {
             "id": string,
             "productId": string,
-            "count": string,
-            "price": string,
-            "positionNum": string
+            "count": number,
+            "price": number,
+            "positionNum": number
         }, ...
     ]
 }
 ```
 
-### <div id="usage-return">Возврат чека</div>
-
-#### API Endpoint
-HttpGet [apiHost]/checkoutShift/returnCashReceipt
-
-#### Ограничения
-
-- В Headers есть поле Authorization с токеном "Bearer [token]"
-- Совпадают clientId в токене и запросе
-- Совпадают organizationId в токене и запросе (для работников)
-- В токене есть разрешение /checkoutShift/returnCashReceipt (для работников)
-
-#### Request
-
-```
-Query
-{
-    "clientId": string,         | обязательное
-    "organizationId": string,   | обязательное
-    "cashReceiptId": string     | обязательное
-}
-```
-
-####  Response 401 (Пользователь без токена)
-####  Response 403 (Пользователь не прошёл ограничения)
-####  Response 404 (Если чек не удалось найти)
-####  Response 200
-```
-Body
-Content-Type: "application/json"
-{
-    "id": string,
-    "client_id": string,
-    "checkoutShiftId": string,
-    "date": string,
-    "sum": number,
-    "cashRegisterCheckNumber": string,
-    "fiscalDocumentNumber": string,
-    "typeOperation": string,
-    "taxSystem": string,
-    "typePayment": string,
-    "status": string,
-    "positions": [
-        {
-            "id": string,
-            "productId": string,
-            "count": string,
-            "price": string,
-            "positionNum": string
-        }, ...
-    ]
-}
-```
 ### <div id="usage-close">Закрытие чека</div>
 
 #### API Endpoint
-HttpGet [apiHost]/checkoutShift/closeCashReceipt
+HttpPatch [apiHost]/checkoutShift/closeCashReceipt
 
 #### Ограничения
 
@@ -225,23 +202,24 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "client_id": string,
+    "clientId": string,
     "checkoutShiftId": string,
     "date": string,
     "sum": number,
     "cashRegisterCheckNumber": string,
     "fiscalDocumentNumber": string,
-    "typeOperation": string,
-    "taxSystem": string,
-    "typePayment": string,
-    "status": string,
+    "typeOperation": number,
+    "taxSystem": number,
+    "typePayment": number,
+    "status": number,
+    "reasonId": str | null,
     "positions": [
         {
             "id": string,
             "productId": string,
-            "count": string,
-            "price": string,
-            "positionNum": string
+            "count": number,
+            "price": number,
+            "positionNum": number
         }, ...
     ]
 }
@@ -250,7 +228,7 @@ Content-Type: "application/json"
 ### <div id="usage-remove">Удаление чека</div>
 
 #### API Endpoint
-HttpGet [apiHost]/checkoutShift/removeCashReceipt
+HttpDelete [apiHost]/checkoutShift/removeCashReceipt
 
 #### Ограничения
 
@@ -279,23 +257,24 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "client_id": string,
+    "clientId": string,
     "checkoutShiftId": string,
     "date": string,
     "sum": number,
     "cashRegisterCheckNumber": string,
     "fiscalDocumentNumber": string,
-    "typeOperation": string,
-    "taxSystem": string,
-    "typePayment": string,
-    "status": string,
+    "typeOperation": number,
+    "taxSystem": number,
+    "typePayment": number,
+    "status": number,
+    "reasonId": str | null,
     "positions": [
         {
             "id": string,
             "productId": string,
-            "count": string,
-            "price": string,
-            "positionNum": string
+            "count": number,
+            "price": number,
+            "positionNum": number
         }, ...
     ]
 }

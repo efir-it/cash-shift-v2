@@ -1,6 +1,6 @@
 from typing import Literal, Optional
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -19,17 +19,6 @@ class Settings(BaseSettings):
         пароль пользователя
     DB_NAME: str
         имя базы данных
-    
-    TEST_DB_HOST: str
-        адрес хоста сервера тестовой бд
-    TEST_DB_PORT: int
-        порт тестовой бд
-    TEST_DB_USER: str
-        имя пользователя
-    TEST_DB_PASS: str
-        пароль пользователя
-    TEST_DB_NAME: str
-        имя тестовой базы данных
 
     RABBITMQ_HOST: str
         адрес хоста RABBITMQ
@@ -59,6 +48,8 @@ class Settings(BaseSettings):
         режим логгирования
     """
 
+    model_config = SettingsConfigDict(env_file=".env")
+
     MODE: Literal["DEV", "TEST", "PROD"]
     LOG_LEVEL: str
 
@@ -67,12 +58,6 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
-
-    TEST_DB_HOST: Optional[str] = None
-    TEST_DB_PORT: Optional[int] = None
-    TEST_DB_USER: Optional[str] = None
-    TEST_DB_PASS: Optional[str] = None
-    TEST_DB_NAME: Optional[str] = None
 
     RABBITMQ_HOST: str
     RABBITMQ_PORT: int
@@ -86,9 +71,18 @@ class Settings(BaseSettings):
     TOKEN_ISSUER: str
     ALGORITHM: str
 
-    class Config:
-        env_file = ".env"
-        from_attributes = True
+    TEST_DB_HOST: Optional[str] = None
+    TEST_DB_PORT: Optional[int] = None
+    TEST_DB_USER: Optional[str] = None
+    TEST_DB_PASS: Optional[str] = None
+    TEST_DB_NAME: Optional[str] = None
+
+    TEST_CLIENT_TOKEN: Optional[str] = None
+    TEST_WORKER_TOKEN: Optional[str] = None
+    TEST_CLIENT_ID: Optional[str] = None
+    TEST_ORGANIZATION_ID: Optional[str] = None
+    TEST_WORKER_ID: Optional[str] = None
+    TEST_TIMEDELTA: Optional[int] = None
 
 
 settings = Settings()

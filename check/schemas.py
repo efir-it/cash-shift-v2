@@ -1,11 +1,15 @@
 import uuid
-from pydantic import BaseModel
 from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict
 
 
 class CheckSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: uuid.UUID
     client_id: uuid.UUID
+    worker_id: uuid.UUID
     date: datetime
     number: str
     amount: int
@@ -15,6 +19,4 @@ class CheckSchema(BaseModel):
     type_payment: str
     check_status: str
     type_taxation: str
-
-    class Config:
-        from_attributes = True
+    reason_id: str

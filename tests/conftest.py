@@ -1,25 +1,19 @@
 import asyncio
 import datetime
 import json
-import dateutil.parser
 
 import pytest
+from httpx import AsyncClient
+from jose import jwt
 from sqlalchemy import insert
 
+from cash_shift.models import CashShift
+from check.models import Check
 from config import settings
 from database import Base, async_session_maker, engine
-
-from check.models import Check
-from check_status.models import CheckStatus
-from position_check.models import PositionCheck
-from type_operation.models import TypeOperation
-from type_payment.models import TypePayment
-from type_taxation.models import TypeTaxation
-from cash_shift.models import CashShift
-
-from httpx import AsyncClient
-
+from event.models import Event
 from main import app as fastapi_app
+from position_check.models import PositionCheck
 
 
 # custom Decoder
@@ -27,10 +21,57 @@ def DecodeDateTime(empDict):
     format = "%Y-%m-%dT%H:%M:%S"
     if "date" in empDict:
         empDict["date"] = datetime.datetime.strptime(empDict["date"], format)
+    if "send_time" in empDict:
+        empDict["send_time"] = datetime.datetime.strptime(empDict["send_time"], format)
     return empDict
 
 
 @pytest.fixture(scope="session", autouse=True)
+async def set_user_variables():
+    assert settings.MODE == "TEST"
+
+    permissions = [
+        f"/checkoutShift/getCheckoutShifts",
+        f"/checkoutShift/getCheckoutShift",
+        f"/checkoutShift/openCheckoutShift",
+        f"/checkoutShift/closeCheckoutShift",
+        f"/checkoutShift/getCashReceipt",
+        f"/checkoutShift/createCashReceipt",
+        f"/checkoutShift/returnCashReceipt",
+        f"/checkoutShift/closeCashReceipt",
+        f"/checkoutShift/removeCashReceipt",
+    ]
+    timedelta = datetime.timedelta(settings.TEST_TIMEDELTA)
+    client_jwt_data = {
+        "clientId": settings.TEST_CLIENT_ID,
+        "exp": datetime.datetime.utcnow() + timedelta,
+        "iss": settings.TOKEN_ISSUER,
+        "aud": settings.TOKEN_CLIENT_AUDIENCE,
+    }
+    worker_jwt_data = {
+        "clientId": settings.TEST_CLIENT_ID,
+        "organizationId": settings.TEST_ORGANIZATION_ID,
+        "workerId": settings.TEST_WORKER_ID,
+        "exp": datetime.datetime.utcnow() + timedelta,
+        "iss": settings.TOKEN_ISSUER,
+        "aud": settings.TOKEN_WORKER_AUDIENCE,
+        "api_permission": permissions,
+    }
+    client_token = jwt.encode(
+        client_jwt_data,
+        settings.TOKEN_CLIENT_KEY,
+        algorithm=settings.ALGORITHM,
+    )
+    worker_token = jwt.encode(
+        worker_jwt_data,
+        settings.TOKEN_WORKER_KEY,
+        algorithm=settings.ALGORITHM,
+    )
+    settings.TEST_WORKER_TOKEN = worker_token
+    settings.TEST_CLIENT_TOKEN = client_token
+
+
+@pytest.fixture(scope="function", autouse=True)
 async def prepare_database():
     assert settings.MODE == "TEST"
 
@@ -44,28 +85,15 @@ async def prepare_database():
 
     cash_shift = open_mock_json("cash_shift")
     check = open_mock_json("check")
-    check_status = open_mock_json("check_status")
-    position_check = open_mock_json("position_check")
-    type_operation = open_mock_json("type_operation")
-    type_payment = open_mock_json("type_payment")
-    type_taxation = open_mock_json("type_taxation")
+    rabbit_event = open_mock_json("rabbit_event")
 
     async with async_session_maker() as session:
         add_cash_shift = insert(CashShift).values(cash_shift)
         add_check = insert(Check).values(check)
-        add_check_status = insert(CheckStatus).values(check_status)
-        add_position_check = insert(PositionCheck).values(position_check)
-        add_type_operation = insert(TypeOperation).values(type_operation)
-        add_type_payment = insert(TypePayment).values(type_payment)
-        add_type_taxation = insert(TypeTaxation).values(type_taxation)
-
-        await session.execute(add_type_operation)
-        await session.execute(add_type_payment)
-        await session.execute(add_type_taxation)
-        await session.execute(add_check_status)
+        add_rabbit_event = insert(Event).values(rabbit_event)
         await session.execute(add_cash_shift)
         await session.execute(add_check)
-        await session.execute(add_position_check)
+        await session.execute(add_rabbit_event)
         await session.commit()
 
 

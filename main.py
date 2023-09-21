@@ -1,18 +1,11 @@
 import asyncio
-from starlette.middleware.cors import CORSMiddleware
-from event.base_consumer import Consumer
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from cash_shift.router import router as router_cash_shift
 from check.router import router as router_check
-from position_check.router import router as router_position_check
-
-from fastapi import FastAPI, Request, status
-
-
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
-from fastapi_cache.decorator import cache
-
-from redis import asyncio as aioredis
+from event.base_consumer import Consumer
 
 
 class App(FastAPI):
@@ -22,10 +15,29 @@ class App(FastAPI):
 
 
 app = App()
-
 app.include_router(router_cash_shift)
 app.include_router(router_check)
-app.include_router(router_position_check)
+
+origins = [
+    "http://localhost:3000",
+    "http://192.168.50.139:3000",
+    "http://192.168.50.11:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
+    allow_headers=[
+        "Content-Type",
+        "Set-Cookie",
+        "Access-Control-Allow-Headers",
+        "Access-Control-Allow-Origin",
+        "Authorization",
+    ],
+)
+
 
 @app.on_event("startup")
 async def startup():

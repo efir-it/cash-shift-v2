@@ -6,7 +6,7 @@ def change_format(body: dict) -> dict:
     naming_map = {
         "id": "id",
         "name": "name",
-        "count":"count",
+        "count": "count",
         "price": "price",
         "product_id": "productId",
         "productId": "product_id",

@@ -1,10 +1,12 @@
 import datetime
 from typing import Optional
+
 from sqlalchemy import update
+
 from cash_shift.models import CashShift
 from cash_shift.utils import change_format
-from dao.base import BaseDAO
 from check.dao import CheckDAO
+from dao.base import BaseDAO
 from database import async_session_maker
 
 
@@ -12,80 +14,71 @@ class CheckoutShiftDAO(BaseDAO):
     model = CashShift
 
     @classmethod
-    async def hide_by_workplace_id(cls, workplace_id) -> None:
-        async with async_session_maker() as session:
-            query = (
-                update(cls.model)
-                .where(cls.model.workplace_id == workplace_id)
-                .values({"hide": True})
+    async def hide_by(cls, filter_by: dict = {}) -> None:
+        await cls.update(filter_by=filter_by, data={"hide": True})
+
+    @classmethod
+    async def json_find_one(cls, id, filter_by: dict = {}) -> Optional[dict]:
+        checkout_shift = await cls.get_one_or_none({"id": id, **filter_by})
+
+        return (
+            change_format(
+                {
+                    **checkout_shift.__dict__,
+                    "checks": (
+                        await CheckDAO.json_get_all(
+                            {"cash_shift_id": checkout_shift.id}
+                        )
+                    )["checks"],
+                }
             )
-            await session.execute(query)
-            await session.commit()
-        
+            if checkout_shift is not None
+            else None
+        )
 
     @classmethod
-    async def hide_by_organization_id(cls, organization_id) -> None:
-        async with async_session_maker() as session:
-            query = (
-                update(cls.model)
-                .where(cls.model.organization_id == organization_id)
-                .values({"hide": True})
+    async def json_get_all(cls, filter_by: dict = {}) -> dict:
+        checkout_shifts = await cls.get_all(filter_by)
+
+        return (
+            {
+                "checkoutShifts": [
+                    change_format(checkout_shift.__dict__)
+                    for checkout_shift in checkout_shifts
+                ]
+            }
+            if checkout_shifts is not None
+            else None
+        )
+
+    @classmethod
+    async def json_add(cls, data: dict = {}) -> Optional[dict]:
+        checkout_shift = await cls.add(data)
+
+        return (
+            change_format(checkout_shift.__dict__)
+            if checkout_shift is not None
+            else None
+        )
+
+    @classmethod
+    async def json_update(
+        cls, id, filter_by: dict = {}, data: dict = {}
+    ) -> Optional[dict]:
+        checkout_shifts = await cls.update({"id": id, **filter_by}, data)
+        checkout_shift = checkout_shifts[0] if len(checkout_shifts) > 0 else None
+
+        return (
+            change_format(
+                {
+                    **(checkout_shift.__dict__),
+                    "checks": (
+                        await CheckDAO.json_get_all(
+                            {"cash_shift_id": checkout_shift.id}
+                        )
+                    )["checks"],
+                }
             )
-            await session.execute(query)
-            await session.commit()
-
-    @classmethod
-    async def hide_by_store_id(cls, store_id) -> None:
-        async with async_session_maker() as session:
-            query = (
-                update(cls.model)
-                .where(cls.model.store_id == store_id)
-                .values({"hide": True})
-                .returning(cls.model)
-            )
-            await session.execute(query)
-            await session.commit()
-
-    @classmethod
-    async def json_find_by_id(cls, id) -> Optional[dict]:
-        checkout_shift = await cls.find_by_id(id)
-        if checkout_shift is None:
-            return checkout_shift
-        checkout_shift = checkout_shift.__dict__
-        checks = await CheckDAO.json_get_all(**{"cash_shift_id": checkout_shift["id"]})
-        checkout_shift["checks"] = checks["checks"]
-        return change_format(checkout_shift)
-
-    @classmethod
-    async def json_get_all(cls, **filter_by) -> dict:
-        checkout_shifts = await cls.get_all(**filter_by)
-        return {
-            "checkoutShifts": [
-                change_format(checkout_shift.__dict__)
-                for checkout_shift in checkout_shifts
-            ]
-        }
-
-    @classmethod
-    async def json_add(cls, **data) -> dict:
-        checkout_shift = await cls.add(**data)
-        if checkout_shift is None:
-            return checkout_shift
-        checkout_shift = checkout_shift.__dict__
-        checkout_shift["checks"] = []
-        return change_format(checkout_shift)
-    
-    @classmethod
-    async def json_update(cls, id, **data) -> dict:
-        checkout_shift = await cls.update(id, **data)
-        if checkout_shift is None:
-            return checkout_shift
-        checkout_shift = checkout_shift.__dict__
-        checks = await CheckDAO.json_get_all(**{"cash_shift_id": checkout_shift["id"]})
-        checkout_shift["checks"] = checks["checks"]
-        
-        return change_format(checkout_shift)
-
-    
-
-    
+            if checkout_shift is not None
+            else None
+        )

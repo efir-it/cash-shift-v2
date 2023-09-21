@@ -1,6 +1,8 @@
 import uuid
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from database import Base
 
 
@@ -19,5 +21,7 @@ class PositionCheck(Base):
     position: Mapped[int] = mapped_column(nullable=False)
     client_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
 
-    check_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("checks.id", ondelete="CASCADE"))
+    check_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("checks.id", ondelete="CASCADE")
+    )
     check: Mapped["Check"] = relationship(back_populates="positions")
