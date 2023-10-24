@@ -1,14 +1,19 @@
 import datetime
 import enum
+from typing import Callable
 from uuid import UUID
 
 from auth.schemas import JWTUser
 
+dict_without_none_values: Callable[[dict], dict] = lambda dict: {
+    k: v for k, v in dict.items() if v is not None
+}
 
 def check_user(user: JWTUser, **kwargs) -> bool:
-    check_fields = ["clientId", "organizationId", "workerId"]
-    if user.role == "client":
-        return user.data.get("clientId") == kwargs.get("clientId")
+    print(user)
+    check_fields = ["ownerId", "organizationId", "workerId"]
+    if user.role == "owner":
+        return str(user.data.get("ownerId")) == str(kwargs.get("ownerId"))
 
     if user.role == "worker":
         for field in check_fields:
@@ -33,8 +38,10 @@ def change_format(body: dict) -> dict:
         "sum": "amount",
         "amount": "sum",
         "date": "date",
-        "client_id": "clientId",
-        "clientId": "client_id",
+        "owner_id": "ownerId",
+        "ownerId": "owner_id",
+        "store_id": "storeId",
+        "storeId": "store_id",
         "reason_id": "reasonId",
         "reasonId": "reason_id",
         "worker_id": "workerId",

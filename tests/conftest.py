@@ -42,14 +42,14 @@ async def set_user_variables():
         f"/checkoutShift/removeCashReceipt",
     ]
     timedelta = datetime.timedelta(settings.TEST_TIMEDELTA)
-    client_jwt_data = {
-        "clientId": settings.TEST_CLIENT_ID,
+    owner_jwt_data = {
+        "ownerId": settings.TEST_OWNER_ID,
         "exp": datetime.datetime.utcnow() + timedelta,
         "iss": settings.TOKEN_ISSUER,
-        "aud": settings.TOKEN_CLIENT_AUDIENCE,
+        "aud": settings.TOKEN_OWNER_AUDIENCE,
     }
     worker_jwt_data = {
-        "clientId": settings.TEST_CLIENT_ID,
+        "ownerId": settings.TEST_OWNER_ID,
         "organizationId": settings.TEST_ORGANIZATION_ID,
         "workerId": settings.TEST_WORKER_ID,
         "exp": datetime.datetime.utcnow() + timedelta,
@@ -57,9 +57,9 @@ async def set_user_variables():
         "aud": settings.TOKEN_WORKER_AUDIENCE,
         "api_permission": permissions,
     }
-    client_token = jwt.encode(
-        client_jwt_data,
-        settings.TOKEN_CLIENT_KEY,
+    owner_token = jwt.encode(
+        owner_jwt_data,
+        settings.TOKEN_OWNER_KEY,
         algorithm=settings.ALGORITHM,
     )
     worker_token = jwt.encode(
@@ -68,7 +68,7 @@ async def set_user_variables():
         algorithm=settings.ALGORITHM,
     )
     settings.TEST_WORKER_TOKEN = worker_token
-    settings.TEST_CLIENT_TOKEN = client_token
+    settings.TEST_OWNER_TOKEN = owner_token
 
 
 @pytest.fixture(scope="function", autouse=True)

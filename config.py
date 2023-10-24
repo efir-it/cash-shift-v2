@@ -29,11 +29,11 @@ class Settings(BaseSettings):
     RABBITMQ_PASS: str
         пароль пользователя RABBITMQ
 
-    TOKEN_CLIENT_KEY: str
-        секретный ключ client
+    TOKEN_OWNER_KEY: str
+        секретный ключ owner
     TOKEN_WORKER_KEY: str
         секретный ключ worker
-    TOKEN_CLIENT_AUDIENCE: str
+    TOKEN_OWNER_AUDIENCE: str
         ...
     TOKEN_WORKER_AUDIENCE: str
         ...
@@ -64,9 +64,9 @@ class Settings(BaseSettings):
     RABBITMQ_USER: str
     RABBITMQ_PASS: str
 
-    TOKEN_CLIENT_KEY: str
+    TOKEN_OWNER_KEY: str
     TOKEN_WORKER_KEY: str
-    TOKEN_CLIENT_AUDIENCE: str
+    TOKEN_OWNER_AUDIENCE: str
     TOKEN_WORKER_AUDIENCE: str
     TOKEN_ISSUER: str
     ALGORITHM: str
@@ -77,9 +77,9 @@ class Settings(BaseSettings):
     TEST_DB_PASS: Optional[str] = None
     TEST_DB_NAME: Optional[str] = None
 
-    TEST_CLIENT_TOKEN: Optional[str] = None
+    TEST_OWNER_TOKEN: Optional[str] = None
     TEST_WORKER_TOKEN: Optional[str] = None
-    TEST_CLIENT_ID: Optional[str] = None
+    TEST_OWNER_ID: Optional[str] = None
     TEST_ORGANIZATION_ID: Optional[str] = None
     TEST_WORKER_ID: Optional[str] = None
     TEST_TIMEDELTA: Optional[int] = None

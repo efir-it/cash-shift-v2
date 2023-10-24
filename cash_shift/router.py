@@ -16,7 +16,7 @@ router = APIRouter(prefix="/checkoutShift", tags=["Кассовые смены"]
 
 @router.get("/getCheckoutShifts")
 async def get_checkout_shift_list(
-    clientId: str,
+    ownerId: str,
     organizationId: str,
     workplaceId: str = None,
     workerId: str = None,
@@ -27,12 +27,12 @@ async def get_checkout_shift_list(
     ),
 ):
     if not check_user(
-        user, clientId=clientId, organizationId=organizationId, workerId=workerId
+        user, ownerId=ownerId, organizationId=organizationId, workerId=workerId
     ):
         raise PermissionDenied
 
     filter_by = {
-        "client_id": uuid.UUID(clientId),
+        "owner_id": uuid.UUID(ownerId),
         "organization_id": uuid.UUID(organizationId),
     }
 
@@ -52,7 +52,7 @@ async def get_checkout_shift_list(
 
 @router.get("/getCheckoutShift")
 async def get_checkout_shift(
-    clientId: str,
+    ownerId: str,
     organizationId: str,
     checkoutShiftId: str,
     workerId: str,
@@ -61,7 +61,7 @@ async def get_checkout_shift(
     ),
 ):
     if not check_user(
-        user, clientId=clientId, organizationId=organizationId, workerId=workerId
+        user, ownerId=ownerId, organizationId=organizationId, workerId=workerId
     ):
         raise PermissionDenied
 
@@ -69,7 +69,7 @@ async def get_checkout_shift(
         id=uuid.UUID(checkoutShiftId),
         filter_by={
             "organization_id": uuid.UUID(organizationId),
-            "client_id": uuid.UUID(clientId),
+            "owner_id": uuid.UUID(ownerId),
             "worker_id": uuid.UUID(workerId),
         },
     )
@@ -81,7 +81,7 @@ async def get_checkout_shift(
 
 @router.post("/openCheckoutShift")
 async def open_checkout_shift(
-    clientId: str,
+    ownerId: str,
     organizationId: str,
     workerId: str,
     user: JWTUser = Security(
@@ -90,14 +90,14 @@ async def open_checkout_shift(
     **body: dict,
 ):
     if not check_user(
-        user, clientId=clientId, organizationId=organizationId, workerId=workerId
+        user, ownerId=ownerId, organizationId=organizationId, workerId=workerId
     ):
         raise PermissionDenied
 
     checkout_shift = await CheckoutShiftDAO.json_add(
         {
             **change_format(**body),
-            "client_id": uuid.UUID(clientId),
+            "owner_id": uuid.UUID(ownerId),
             "organization_id": uuid.UUID(organizationId),
             "worker_id": uuid.UUID(workerId),
             "date": datetime.datetime.utcnow(),
@@ -109,7 +109,7 @@ async def open_checkout_shift(
 
 @router.patch("/closeCheckoutShift")
 async def close_checkout_shift(
-    clientId: str,
+    ownerId: str,
     organizationId: str,
     workerId: str,
     checkoutShiftId: str,
@@ -118,14 +118,14 @@ async def close_checkout_shift(
     ),
 ):
     if not check_user(
-        user, clientId=clientId, organizationId=organizationId, workerId=workerId
+        user, ownerId=ownerId, organizationId=organizationId, workerId=workerId
     ):
         raise PermissionDenied
 
     checkout_shift = await CheckoutShiftDAO.json_update(
         id=uuid.UUID(checkoutShiftId),
         filter_by={
-            "client_id": uuid.UUID(clientId),
+            "owner_id": uuid.UUID(ownerId),
             "organization_id": uuid.UUID(organizationId),
             "worker_id": uuid.UUID(workerId),
         },

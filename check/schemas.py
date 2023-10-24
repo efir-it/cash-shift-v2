@@ -8,7 +8,7 @@ class CheckSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
-    client_id: uuid.UUID
+    owner_id: uuid.UUID
     worker_id: uuid.UUID
     date: datetime
     number: str
@@ -20,3 +20,13 @@ class CheckSchema(BaseModel):
     check_status: str
     type_taxation: str
     reason_id: str
+    
+class BaseCheckRequestSchema(BaseModel):
+    ownerId: uuid.UUID
+    organizationId: uuid.UUID    
+    
+class GetChecksRequestSchema(BaseCheckRequestSchema):
+    storeId: uuid.UUID | None = None
+    cashShiftId: uuid.UUID | None = None
+    status: int | None = None
+    count: int = 10 

@@ -11,5 +11,5 @@ class PositionCheckSchema(BaseModel):
     count: int
     price: int
     position: int
-    client_id: uuid.UUID
+    owner_id: uuid.UUID
     check_id: uuid.UUID

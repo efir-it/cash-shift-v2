@@ -2,7 +2,7 @@ from ast import List
 
 import pytest
 from aio_pika import IncomingMessage, Message
-from fastapi.testclient import TestClient
+from fastapi.testowner import TestClient
 
 from cash_shift.dao import CheckoutShiftDAO
 from cash_shift.schemas import CashShiftSchemas
@@ -12,7 +12,7 @@ from event.dao import EventDAO
 from event.schemas import EventSchemas
 from main import app
 
-client = TestClient(app)
+owner = TestClient(app)
 
 
 # @pytest.mark.rabbit
@@ -34,7 +34,7 @@ client = TestClient(app)
 #     message_body = {
 #         "eventId": "a1835b00-3c35-49af-988d-1257bbd251c3",
 #         "ackDestination": "checkoutShift/eventAck",
-#         "clientId": "8a88ebd2-6432-41d4-9936-3249c22283e3",
+#         "ownerId": "8a88ebd2-6432-41d4-9936-3249c22283e3",
 #         "organizationId": "fa71b782-156d-436c-aa20-392954227029",
 #     }
 #     await ConsumerMethods.process_incoming_remove_organization(message)
@@ -51,7 +51,7 @@ client = TestClient(app)
 #     message_body = {
 #         "eventId": "a1835b00-3c35-49af-988d-1257bbd251c3",
 #         "ackDestination": "checkoutShift/eventAck",
-#         "clientId": "8a88ebd2-6432-41d4-9936-3249c22283e3",
+#         "ownerId": "8a88ebd2-6432-41d4-9936-3249c22283e3",
 #         "organizationId": "fa71b782-156d-436c-aa20-392954227029",
 #         "storeId": "61a919d8-6084-4d51-a643-1ab711ef6c2b",
 #     }

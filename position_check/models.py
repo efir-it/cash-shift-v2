@@ -19,7 +19,7 @@ class PositionCheck(Base):
     count: Mapped[int] = mapped_column(nullable=False, default=1)
     price: Mapped[int] = mapped_column(nullable=False, default=0)
     position: Mapped[int] = mapped_column(nullable=False)
-    client_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    owner_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
 
     check_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("checks.id", ondelete="CASCADE")

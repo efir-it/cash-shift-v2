@@ -49,7 +49,7 @@ HttpGet [apiHost]/checkoutShift/getCashReceipt
 #### Ограничения
 
 - В Headers есть поле Authorization с токеном "Bearer [token]"
-- Совпадают clientId в токене и запросе
+- Совпадают ownerId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/getCashReceipt (для работников)
 
@@ -58,7 +58,7 @@ HttpGet [apiHost]/checkoutShift/getCashReceipt
 ```
 Query
 {
-    "clientId": string          | обязательное
+    "ownerId": string          | обязательное
     "organizationId": string    | обязательное
     "cashReceiptId": string     | обязательное
 }
@@ -73,7 +73,7 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "clientId": string,
+    "ownerId": string,
     "checkoutShiftId": string,
     "date": string,
     "sum": number,
@@ -104,7 +104,7 @@ HttpPost [apiHost]/checkoutShift/createCashReceipt
 #### Ограничения
 
 - В Headers есть поле Authorization с токеном "Bearer [token]"
-- Совпадают clientId в токене и запросе
+- Совпадают ownerId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/createCashReceipt (для работников)
 
@@ -113,7 +113,7 @@ HttpPost [apiHost]/checkoutShift/createCashReceipt
 ```
 Query
 {
-    "clientId": string          | обязательное
+    "ownerId": string          | обязательное
     "organizationId": string    | обязательное
     "checkoutShiftId": string   | обязательное
 }
@@ -146,7 +146,7 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "clientId": string,
+    "ownerId": string,
     "checkoutShiftId": string,
     "date": string,
     "sum": number,
@@ -177,7 +177,7 @@ HttpPatch [apiHost]/checkoutShift/closeCashReceipt
 #### Ограничения
 
 - В Headers есть поле Authorization с токеном "Bearer [token]"
-- Совпадают clientId в токене и запросе
+- Совпадают ownerId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/closeCashReceipt (для работников)
 
@@ -186,7 +186,7 @@ HttpPatch [apiHost]/checkoutShift/closeCashReceipt
 ```
 Query
 {
-    "clientId": string,         | обязательное
+    "ownerId": string,         | обязательное
     "organizationId": string,   | обязательное
     "cashReceiptId": string     | обязательное
 }
@@ -202,7 +202,7 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "clientId": string,
+    "ownerId": string,
     "checkoutShiftId": string,
     "date": string,
     "sum": number,
@@ -233,7 +233,7 @@ HttpDelete [apiHost]/checkoutShift/removeCashReceipt
 #### Ограничения
 
 - В Headers есть поле Authorization с токеном "Bearer [token]"
-- Совпадают clientId в токене и запросе
+- Совпадают ownerId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/removeCashReceipt (для работников)
 
@@ -242,7 +242,7 @@ HttpDelete [apiHost]/checkoutShift/removeCashReceipt
 ```
 Query
 {
-    "clientId": string,         | обязательное
+    "ownerId": string,         | обязательное
     "organizationId": string,   | обязательное
     "cashReceiptId": string     | обязательное
 }
@@ -257,7 +257,7 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "clientId": string,
+    "ownerId": string,
     "checkoutShiftId": string,
     "date": string,
     "sum": number,

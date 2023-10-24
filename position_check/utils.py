@@ -12,8 +12,8 @@ def change_format(body: dict) -> dict:
         "productId": "product_id",
         "position": "positionNum",
         "positionNum": "position",
-        "client_id": "clientId",
-        "clientId": "client_id",
+        "owner_id": "ownerId",
+        "ownerId": "owner_id",
     }
     for name in naming_map.keys():
         if name in body:

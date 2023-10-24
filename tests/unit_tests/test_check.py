@@ -1,34 +1,34 @@
 import pytest
-from fastapi.testclient import TestClient
+from fastapi.testowner import TestClient
 
 from check.utils import CheckStatuses
 from config import settings
 from main import app
 
-client = TestClient(app)
+owner = TestClient(app)
 
 
-@pytest.mark.client
-async def test_client_get_check_200():
-    response = client.get(
+@pytest.mark.owner
+async def test_owner_get_check_200():
+    response = owner.get(
         url="/checkoutShift/getCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 200
     assert response.json()["id"] == "9a4a8e01-cdb1-4556-aa3b-215297f17e2a"
 
 
-@pytest.mark.client
-async def test_client_get_check_401():
-    response = client.get(
+@pytest.mark.owner
+async def test_owner_get_check_401():
+    response = owner.get(
         url="/checkoutShift/getCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -36,40 +36,40 @@ async def test_client_get_check_401():
     assert response.status_code == 401
 
 
-@pytest.mark.client
-async def test_client_get_check_403():
-    response = client.get(
+@pytest.mark.owner
+async def test_owner_get_check_403():
+    response = owner.get(
         url="/checkoutShift/getCashReceipt",
         params={
-            "clientId": "914a8e01-cdb1-4556-aa3b-215297f17e2a",
+            "ownerId": "914a8e01-cdb1-4556-aa3b-215297f17e2a",
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 403
 
 
-@pytest.mark.client
-async def test_client_get_check_404():
-    response = client.get(
+@pytest.mark.owner
+async def test_owner_get_check_404():
+    response = owner.get(
         url="/checkoutShift/getCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "91aa8e01-cdb1-4556-aa3b-215297f17e2a",
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 404
 
 
 @pytest.mark.worker
 async def test_worker_get_check_200():
-    response = client.get(
+    response = owner.get(
         url="/checkoutShift/getCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -81,10 +81,10 @@ async def test_worker_get_check_200():
 
 @pytest.mark.worker
 async def test_worker_get_check_401():
-    response = client.get(
+    response = owner.get(
         url="/checkoutShift/getCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -94,10 +94,10 @@ async def test_worker_get_check_401():
 
 @pytest.mark.worker
 async def test_worker_get_check_403():
-    response = client.get(
+    response = owner.get(
         url="/checkoutShift/getCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": "9a4a8e01-cdb1-4556-aa3b-215297fyq32a",
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -108,10 +108,10 @@ async def test_worker_get_check_403():
 
 @pytest.mark.worker
 async def test_worker_get_check_404():
-    response = client.get(
+    response = owner.get(
         url="/checkoutShift/getCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9c4a8f01-cde1-4556-aa3b-215297f17e2a",
         },
@@ -120,12 +120,12 @@ async def test_worker_get_check_404():
     assert response.status_code == 404
 
 
-@pytest.mark.client
-async def test_client_create_check_200():
-    response = client.post(
+@pytest.mark.owner
+async def test_owner_create_check_200():
+    response = owner.post(
         url="/checkoutShift/createCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "checkoutShiftId": "4415b8d5-0231-4483-af76-62390e46de25",
         },
@@ -149,19 +149,19 @@ async def test_client_create_check_200():
                 },
             ],
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 200
     assert response.json()["sum"] == 12345
     assert len(response.json()["positions"]) == 2
 
 
-@pytest.mark.client
-async def test_client_create_check_401():
-    response = client.post(
+@pytest.mark.owner
+async def test_owner_create_check_401():
+    response = owner.post(
         url="/checkoutShift/createCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "checkoutShiftId": "4415b8d5-0231-4483-af76-62390e46de25",
         },
@@ -189,12 +189,12 @@ async def test_client_create_check_401():
     assert response.status_code == 401
 
 
-@pytest.mark.client
-async def test_client_create_check_403():
-    response = client.post(
+@pytest.mark.owner
+async def test_owner_create_check_403():
+    response = owner.post(
         url="/checkoutShift/createCashReceipt",
         params={
-            "clientId": "914a8e01-cdb1-4556-aa3b-215297f17e2a",
+            "ownerId": "914a8e01-cdb1-4556-aa3b-215297f17e2a",
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "checkoutShiftId": "4415b8d5-0231-4483-af76-62390e46de25",
         },
@@ -218,17 +218,17 @@ async def test_client_create_check_403():
                 },
             ],
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 403
 
 
 @pytest.mark.worker
 async def test_worker_create_check_200():
-    response = client.post(
+    response = owner.post(
         url="/checkoutShift/createCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "checkoutShiftId": "4415b8d5-0231-4483-af76-62390e46de25",
         },
@@ -261,7 +261,7 @@ async def test_worker_create_check_200():
 
 @pytest.mark.worker
 async def test_worker_create_check_401():
-    response = client.post(
+    response = owner.post(
         url="/checkoutShift/createCashReceipt",
         json={
             "sum": 12345,
@@ -284,7 +284,7 @@ async def test_worker_create_check_401():
             ],
         },
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "checkoutShiftId": "4415b8d5-0231-4483-af76-62390e46de25",
         },
@@ -294,10 +294,10 @@ async def test_worker_create_check_401():
 
 @pytest.mark.worker
 async def test_worker_create_check_403():
-    response = client.post(
+    response = owner.post(
         url="/checkoutShift/createCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": "9a4a8e01-cdb1-4556-aa3b-215297fyq32a",
             "checkoutShiftId": "4415b8d5-0231-4483-af76-62390e46de25",
         },
@@ -326,27 +326,27 @@ async def test_worker_create_check_403():
     assert response.status_code == 403
 
 
-@pytest.mark.client
-async def test_client_close_check_200():
-    response = client.patch(
+@pytest.mark.owner
+async def test_owner_close_check_200():
+    response = owner.patch(
         url="/checkoutShift/closeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 200
     assert response.json()["status"] == CheckStatuses.CLOSED.value
 
 
-@pytest.mark.client
-async def test_client_close_check_401():
-    response = client.patch(
+@pytest.mark.owner
+async def test_owner_close_check_401():
+    response = owner.patch(
         url="/checkoutShift/closeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -354,40 +354,40 @@ async def test_client_close_check_401():
     assert response.status_code == 401
 
 
-@pytest.mark.client
-async def test_client_close_check_403():
-    response = client.patch(
+@pytest.mark.owner
+async def test_owner_close_check_403():
+    response = owner.patch(
         url="/checkoutShift/closeCashReceipt",
         params={
-            "clientId": "914a8e01-cdb1-4556-aa3b-215297f17e2a",
+            "ownerId": "914a8e01-cdb1-4556-aa3b-215297f17e2a",
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 403
 
 
-@pytest.mark.client
-async def test_client_close_check_404():
-    response = client.patch(
+@pytest.mark.owner
+async def test_owner_close_check_404():
+    response = owner.patch(
         url="/checkoutShift/closeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "91aa8e01-cdb1-4556-aa3b-215297f17e2a",
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 404
 
 
 @pytest.mark.worker
 async def test_worker_close_check_200():
-    response = client.patch(
+    response = owner.patch(
         url="/checkoutShift/closeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -399,10 +399,10 @@ async def test_worker_close_check_200():
 
 @pytest.mark.worker
 async def test_worker_close_check_401():
-    response = client.patch(
+    response = owner.patch(
         url="/checkoutShift/closeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -412,10 +412,10 @@ async def test_worker_close_check_401():
 
 @pytest.mark.worker
 async def test_worker_close_check_403():
-    response = client.patch(
+    response = owner.patch(
         url="/checkoutShift/closeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": "9a4a8e01-cdb1-4556-aa3b-215297fyq32a",
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -426,10 +426,10 @@ async def test_worker_close_check_403():
 
 @pytest.mark.worker
 async def test_worker_close_check_404():
-    response = client.patch(
+    response = owner.patch(
         url="/checkoutShift/closeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9c4a8f01-cde1-4556-aa3b-215297f17e2a",
         },
@@ -438,27 +438,27 @@ async def test_worker_close_check_404():
     assert response.status_code == 404
 
 
-@pytest.mark.client
-async def test_client_remove_check_200():
-    response = client.delete(
+@pytest.mark.owner
+async def test_owner_remove_check_200():
+    response = owner.delete(
         url="/checkoutShift/removeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 200
     assert response.json()["id"] == "9a4a8e01-cdb1-4556-aa3b-215297f17e2a"
 
 
-@pytest.mark.client
-async def test_client_remove_check_401():
-    response = client.delete(
+@pytest.mark.owner
+async def test_owner_remove_check_401():
+    response = owner.delete(
         url="/checkoutShift/removeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -466,40 +466,40 @@ async def test_client_remove_check_401():
     assert response.status_code == 401
 
 
-@pytest.mark.client
-async def test_client_remove_check_403():
-    response = client.delete(
+@pytest.mark.owner
+async def test_owner_remove_check_403():
+    response = owner.delete(
         url="/checkoutShift/removeCashReceipt",
         params={
-            "clientId": "914a8e01-cdb1-4556-aa3b-215297f17e2a",
+            "ownerId": "914a8e01-cdb1-4556-aa3b-215297f17e2a",
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 403
 
 
-@pytest.mark.client
-async def test_client_remove_check_404():
-    response = client.delete(
+@pytest.mark.owner
+async def test_owner_remove_check_404():
+    response = owner.delete(
         url="/checkoutShift/removeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "91aa8e01-cdb1-4556-aa3b-215297f17e2a",
         },
-        headers={"Authorization": f"Bearer {settings.TEST_CLIENT_TOKEN}"},
+        headers={"Authorization": f"Bearer {settings.TEST_OWNER_TOKEN}"},
     )
     assert response.status_code == 404
 
 
 @pytest.mark.worker
 async def test_worker_remove_check_200():
-    response = client.delete(
+    response = owner.delete(
         url="/checkoutShift/removeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -511,10 +511,10 @@ async def test_worker_remove_check_200():
 
 @pytest.mark.worker
 async def test_worker_remove_check_401():
-    response = client.delete(
+    response = owner.delete(
         url="/checkoutShift/removeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -524,10 +524,10 @@ async def test_worker_remove_check_401():
 
 @pytest.mark.worker
 async def test_worker_remove_check_403():
-    response = client.delete(
+    response = owner.delete(
         url="/checkoutShift/removeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": "9a4a8e01-cdb1-4556-aa3b-215297fyq32a",
             "cashReceiptId": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
         },
@@ -538,10 +538,10 @@ async def test_worker_remove_check_403():
 
 @pytest.mark.worker
 async def test_worker_remove_check_404():
-    response = client.delete(
+    response = owner.delete(
         url="/checkoutShift/removeCashReceipt",
         params={
-            "clientId": settings.TEST_CLIENT_ID,
+            "ownerId": settings.TEST_OWNER_ID,
             "organizationId": settings.TEST_ORGANIZATION_ID,
             "cashReceiptId": "9c4a8f01-cde1-4556-aa3b-215297f17e2a",
         },

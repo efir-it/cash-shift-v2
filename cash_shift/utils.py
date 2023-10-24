@@ -5,9 +5,9 @@ from auth.schemas import JWTUser
 
 
 def check_user(user: JWTUser, **kwargs) -> bool:
-    check_fields = ["clientId", "organizationId", "workerId"]
-    if user.role == "client":
-        return user.data.get("clientId") == kwargs.get("clientId")
+    check_fields = ["ownerId", "organizationId", "workerId"]
+    if user.role == "owner":
+        return user.data.get("ownerId") == kwargs.get("ownerId")
 
     if user.role == "worker":
         for field in check_fields:
@@ -31,8 +31,8 @@ def change_format(body: dict) -> dict:
         "organizationId": "organization_id",
         "store_id": "storeId",
         "storeId": "store_id",
-        "client_id": "clientId",
-        "clientId": "client_id",
+        "owner_id": "ownerId",
+        "ownerId": "owner_id",
         "workplace_id": "workplaceId",
         "workplaceId": "workplace_id",
         "worker_id": "workerId",

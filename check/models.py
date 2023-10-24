@@ -15,8 +15,10 @@ class Check(Base):
     __tablename__ = "checks"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    client_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    owner_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     organization_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    store_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    
     date: Mapped[datetime] = mapped_column(nullable=False)
     number: Mapped[str] = mapped_column(nullable=False)
     amount: Mapped[int] = mapped_column(nullable=False, default=0)

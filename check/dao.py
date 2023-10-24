@@ -45,6 +45,17 @@ class CheckDAO(BaseDAO):
             if checks is not None
             else None
         )
+        
+    @classmethod
+    async def json_get_several(cls, count: int, filter_by: dict = {}) -> dict:
+        checks = (await cls.get_all(filter_by))
+        checks.sort(key=lambda check: check.date, reverse=True)
+        print(checks)
+        return (
+            {"checks": [await cls.get_check_with_positions(check) for check in checks[:count]]}
+            if checks is not None
+            else None
+        )
 
     @classmethod
     async def json_add(cls, data: dict) -> Optional[dict]:
@@ -54,7 +65,7 @@ class CheckDAO(BaseDAO):
             await PositionCheckDAO.add(
                 {
                     **position_utils.change_format(position),
-                    "client_id": check.client_id,
+                    "owner_id": check.owner_id,
                     "check_id": check.id,
                     "position": position_num + 1,
                 }

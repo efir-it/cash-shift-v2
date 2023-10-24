@@ -1,29 +1,29 @@
 [
-    {
-        "id": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
-        "client_id": "8a88ebd2-6432-41d4-9936-3249c22283e3",
-        "organization_id": "fa71b782-156d-436c-aa20-392954227029",
-        "cash_shift_id": "4415b8d5-0231-4483-af76-62390e46de25",
-        "amount": 19023,
-        "number": "342345",
-        "number_fiscal_document": "24342352344",
-        "type_operation": 2,
-        "type_taxation": 0,
-        "type_payment": 0,
-        "check_status": 1,
-        "date": "2023-08-25T07:28:26"
-    },
-    {
-        "client_id": "8a88ebd2-6432-41d4-9936-3249c22283e3",
-        "organization_id": "fa71b782-156d-436c-aa20-392954227029",
-        "cash_shift_id": "4415b8d5-0231-4483-af76-62390e46de25",
-        "amount": 10000000,
-        "number": "342346",
-        "number_fiscal_document": "24342352334",
-        "type_operation": 0,
-        "type_taxation": 0,
-        "type_payment": 0,
-        "check_status": 0,
-        "date": "2023-08-25T07:28:28"
-    }
+  {
+    "id": "9a4a8e01-cdb1-4556-aa3b-215297f17e2a",
+    "owner_id": "8a88ebd2-6432-41d4-9936-3249c22283e3",
+    "organization_id": "fa71b782-156d-436c-aa20-392954227029",
+    "cash_shift_id": "4415b8d5-0231-4483-af76-62390e46de25",
+    "amount": 19023,
+    "number": "342345",
+    "number_fiscal_document": "24342352344",
+    "type_operation": 2,
+    "type_taxation": 0,
+    "type_payment": 0,
+    "check_status": 1,
+    "date": "2023-08-25T07:28:26"
+  },
+  {
+    "owner_id": "8a88ebd2-6432-41d4-9936-3249c22283e3",
+    "organization_id": "fa71b782-156d-436c-aa20-392954227029",
+    "cash_shift_id": "4415b8d5-0231-4483-af76-62390e46de25",
+    "amount": 10000000,
+    "number": "342346",
+    "number_fiscal_document": "24342352334",
+    "type_operation": 0,
+    "type_taxation": 0,
+    "type_payment": 0,
+    "check_status": 0,
+    "date": "2023-08-25T07:28:28"
+  }
 ]

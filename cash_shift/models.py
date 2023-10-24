@@ -17,7 +17,7 @@ class CashShift(Base):
     date: Mapped[datetime] = mapped_column(nullable=False)
     organization_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     store_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
-    client_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    owner_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     workplace_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     worker_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     cash_registr_id: Mapped[uuid.UUID] = mapped_column(nullable=False)

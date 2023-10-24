@@ -20,7 +20,7 @@ HttpGet [apiHost]/checkoutShift/getCheckoutShifts
 #### Ограничения
 
 - В Headers есть поле Authorization с токеном "Bearer [token]"
-- Совпадают clientId в токене и запросе
+- Совпадают ownerId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/getCheckoutShifts (для работников)
 
@@ -29,7 +29,7 @@ HttpGet [apiHost]/checkoutShift/getCheckoutShifts
 ```
 Query
 {
-    "clientId": str             | обязательное
+    "ownerId": str             | обязательное
     "organizationId": str,      | обязательное
     "workerId": str,            | не обязательное
     "workplaceId": str,         | не обязательное
@@ -48,7 +48,7 @@ Content-Type: "application/json"
     "checkoutShifts": [
         {
             "id": string,
-            "clientId": string,
+            "ownerId": string,
             "workerId": string,
             "organizationId": string,
             "storeId": string,
@@ -70,7 +70,7 @@ HttpGet [apiHost]/checkoutShift/getCheckoutShift
 #### Ограничения
 
 - В Headers есть поле Authorization с токеном "Bearer [token]"
-- Совпадают clientId в токене и запросе
+- Совпадают ownerId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
 - Совпадают workerId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/getCheckoutShift (для работников)
@@ -80,7 +80,7 @@ HttpGet [apiHost]/checkoutShift/getCheckoutShift
 ```
 Query
 {
-    "clientId": string          | обязательное
+    "ownerId": string          | обязательное
     "organizationId": string    | обязательное
     "workerId": string          | обязательное
     "checkoutShiftId": string   | обязательное
@@ -96,7 +96,7 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "clientId": string,
+    "ownerId": string,
     "organizationId": string,
     "storeId": string,
     "workplaceId": string,
@@ -108,7 +108,7 @@ Content-Type: "application/json"
     "cashReceipts": [
         {
             "id": string,
-            "clientId": string,
+            "ownerId": string,
             "checkoutShiftId": string,
             "date": string,
             "sum": number,
@@ -141,7 +141,7 @@ HttpPost [apiHost]/checkoutShift/openCheckoutShift
 #### Ограничения
 
 - В Headers есть поле Authorization с токеном "Bearer [token]"
-- Совпадают clientId в токене и запросе
+- Совпадают ownerId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
 - Совпадают workerId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/openCheckoutShift (для работников)
@@ -151,7 +151,7 @@ HttpPost [apiHost]/checkoutShift/openCheckoutShift
 ```
 Query
 {
-    "clientId": string          | обязательное
+    "ownerId": string          | обязательное
     "organizationId": string    | обязательное
     "workerId": string          | обязательное
 }
@@ -173,7 +173,7 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "clientId": string,
+    "ownerId": string,
     "workerId": string,
     "organizationId": string,
     "storeId": string,
@@ -193,7 +193,7 @@ HttpPatch [apiHost]/checkoutShift/closeCheckoutShift
 #### Ограничения
 
 - В Headers есть поле Authorization с токеном "Bearer [token]"
-- Совпадают clientId в токене и запросе
+- Совпадают ownerId в токене и запросе
 - Совпадают organizationId в токене и запросе (для работников)
 - В токене есть разрешение /checkoutShift/closeCheckoutShift (для работников)
 
@@ -202,7 +202,7 @@ HttpPatch [apiHost]/checkoutShift/closeCheckoutShift
 ```
 Query
 {
-    "clientId": string,         | обязательное
+    "ownerId": string,         | обязательное
     "organizationId": string,   | обязательное
     "workerId"" string,         | обязательное
     "checkoutShiftId": string   | обязательное
@@ -219,7 +219,7 @@ Body
 Content-Type: "application/json"
 {
     "id": string,
-    "clientId": string,
+    "ownerId": string,
     "organizationId": string,
     "storeId": string,
     "workplaceId": string,
@@ -231,7 +231,7 @@ Content-Type: "application/json"
     "cashReceipts": [
         {
             "id": string,
-            "clientId": string,
+            "ownerId": string,
             "checkoutShiftId": string,
             "date": string,
             "sum": number,

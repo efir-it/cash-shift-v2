@@ -29,12 +29,12 @@ def get_current_user(security_scopes: SecurityScopes, token: str = Depends(get_t
     user = None
     try:
         user = JWTUser(
-            role="client",
+            role="owner",
             data=jwt.decode(
                 token,
-                settings.TOKEN_CLIENT_KEY,
+                settings.TOKEN_OWNER_KEY,
                 algorithms=settings.ALGORITHM,
-                audience=settings.TOKEN_CLIENT_AUDIENCE,
+                audience=settings.TOKEN_OWNER_AUDIENCE,
                 issuer=settings.TOKEN_ISSUER,
             ),
         )

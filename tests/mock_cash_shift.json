@@ -1,21 +1,21 @@
 [
-    {
-        "id": "4415b8d5-0231-4483-af76-62390e46de25",
-        "client_id": "8a88ebd2-6432-41d4-9936-3249c22283e3",
-        "organization_id": "fa71b782-156d-436c-aa20-392954227029",
-        "worker_id": "91a55fff-2de6-4911-b45c-c42f2b11b6df",
-        "store_id": "61a919d8-6084-4d51-a643-1ab711ef6c2b", 
-        "workplace_id": "ca0e427d-4df3-4805-9635-175d4a2a6a57", 
-        "cash_registr_id": "a8431353-ca5a-44be-b47b-e1acb7fc672d", 
-        "date": "2023-08-25T07:28:26" 
-    },
-    {
-        "client_id": "8a88ebd2-6432-41d4-9936-3249c22283e3",
-        "organization_id": "fa71b782-156d-436c-aa20-392954227029",
-        "worker_id": "91a55fff-2de6-4911-b45c-c42f2b11b6df",
-        "store_id": "46801708-ae36-407e-b272-b16acd03c38b", 
-        "workplace_id": "13cba69e-a731-45f6-87e5-09b9bdaa96f8", 
-        "cash_registr_id": "9e66d862-8499-419c-8ade-58d21f1448ef", 
-        "date": "2023-08-25T07:28:30" 
-    }
-]   
+  {
+    "id": "4415b8d5-0231-4483-af76-62390e46de25",
+    "owner_id": "8a88ebd2-6432-41d4-9936-3249c22283e3",
+    "organization_id": "fa71b782-156d-436c-aa20-392954227029",
+    "worker_id": "91a55fff-2de6-4911-b45c-c42f2b11b6df",
+    "store_id": "61a919d8-6084-4d51-a643-1ab711ef6c2b",
+    "workplace_id": "ca0e427d-4df3-4805-9635-175d4a2a6a57",
+    "cash_registr_id": "a8431353-ca5a-44be-b47b-e1acb7fc672d",
+    "date": "2023-08-25T07:28:26"
+  },
+  {
+    "owner_id": "8a88ebd2-6432-41d4-9936-3249c22283e3",
+    "organization_id": "fa71b782-156d-436c-aa20-392954227029",
+    "worker_id": "91a55fff-2de6-4911-b45c-c42f2b11b6df",
+    "store_id": "46801708-ae36-407e-b272-b16acd03c38b",
+    "workplace_id": "13cba69e-a731-45f6-87e5-09b9bdaa96f8",
+    "cash_registr_id": "9e66d862-8499-419c-8ade-58d21f1448ef",
+    "date": "2023-08-25T07:28:30"
+  }
+]
