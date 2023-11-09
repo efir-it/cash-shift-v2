@@ -58,7 +58,7 @@ def get_current_user(security_scopes: SecurityScopes, token: str = Depends(get_t
 
     if user.role == "worker":
         for scope in security_scopes.scopes:
-            if scope not in user.data.get("api_permission", []):
+            if scope not in user.data.get("api-permission", []):
                 raise PermissionDenied
 
     return user
