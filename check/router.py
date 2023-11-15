@@ -18,7 +18,7 @@ router = APIRouter(prefix="/checkoutShift", tags=["Чеки"])
 async def get_checks(
     params: GetChecksRequestSchema = Depends(),
     user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/getCashReceipts"]
+        get_current_user, scopes=["checkoutShift/getCashReceipts"]
     ),
 ):
     if not check_user(
@@ -40,7 +40,7 @@ async def get_check(
     organizationId: str,
     cashReceiptId: str,
     user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/getCashReceipt"]
+        get_current_user, scopes=["checkoutShift/getCashReceipt"]
     ),
 ):
     if not check_user(
@@ -64,7 +64,7 @@ async def add_check(
     storeId: str,
     checkoutShiftId: str,
     user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/createCashReceipt"]
+        get_current_user, scopes=["checkoutShift/createCashReceipt"]
     ),
     **body: dict,
 ):
@@ -98,7 +98,7 @@ async def close_check(
     organizationId: str,
     cashReceiptId: str,
     user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/closeCashReceipt"]
+        get_current_user, scopes=["checkoutShift/closeCashReceipt"]
     ),
 ):
     if not check_user(user, ownerId=ownerId, organizationId=organizationId):
@@ -154,7 +154,7 @@ async def remove_check(
     organizationId: str,
     cashReceiptId: str,
     user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/removeCashReceipt"]
+        get_current_user, scopes=["checkoutShift/removeCashReceipt"]
     ),
 ):
     if not check_user(user, ownerId=ownerId, organizationId=organizationId):

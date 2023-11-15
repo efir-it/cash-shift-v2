@@ -23,7 +23,7 @@ async def get_checkout_shift_list(
     closed: bool = None,
     hidden: bool = None,
     user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/getCheckoutShifts"]
+        get_current_user, scopes=["checkoutShift/getCheckoutShifts"]
     ),
 ):
     if not check_user(
@@ -57,7 +57,7 @@ async def get_checkout_shift(
     checkoutShiftId: str,
     workerId: str,
     user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/getCheckoutShift"]
+        get_current_user, scopes=["checkoutShift/getCheckoutShift"]
     ),
 ):
     if not check_user(
@@ -85,7 +85,7 @@ async def open_checkout_shift(
     organizationId: str,
     workerId: str,
     user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/openCheckoutShift"]
+        get_current_user, scopes=["checkoutShift/openCheckoutShift"]
     ),
     **body: dict,
 ):
@@ -114,7 +114,7 @@ async def close_checkout_shift(
     workerId: str,
     checkoutShiftId: str,
     user: JWTUser = Security(
-        get_current_user, scopes=["/checkoutShift/closeCheckoutShift"]
+        get_current_user, scopes=["checkoutShift/closeCheckoutShift"]
     ),
 ):
     if not check_user(
