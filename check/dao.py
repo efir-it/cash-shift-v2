@@ -1,11 +1,14 @@
 import datetime
 from typing import Optional
 
+from sqlalchemy import Select, and_, select, true
+
 import position_check.utils as position_utils
 from check.models import Check
 from check.utils import CheckStatuses, change_format
 from dao.base import BaseDAO
 from position_check.dao import PositionCheckDAO
+from database import async_session_maker
 
 
 class CheckDAO(BaseDAO):
@@ -45,14 +48,51 @@ class CheckDAO(BaseDAO):
             if checks is not None
             else None
         )
-        
+
     @classmethod
-    async def json_get_several(cls, count: int, filter_by: dict = {}) -> dict:
-        checks = (await cls.get_all(filter_by))
-        checks.sort(key=lambda check: check.date, reverse=True)
-        print(checks)
+    async def json_get_several(cls, filter_by: dict = {}) -> dict:
+        time_start = filter_by.pop("time_start", None)
+        time_end = filter_by.pop("time_end", None)
+        count = filter_by.pop("count", None)
+
+        if count is None:
+            count = 100000000
+
+        async with async_session_maker() as session:
+            query: Select = (
+                select(cls.model)
+                .filter_by(
+                    **filter_by,
+                )
+                .where(
+                    and_(
+                        (
+                            cls.model.date
+                            > datetime.datetime.strptime(
+                                time_start, "%Y-%m-%dT%H:%M:%S"
+                            )
+                        )
+                        if time_start
+                        else true()
+                    )
+                )
+                .where(
+                    and_(
+                        (
+                            cls.model.date
+                            < datetime.datetime.strptime(time_end, "%Y-%m-%dT%H:%M:%S")
+                        )
+                        if time_end
+                        else true()
+                    )
+                )
+            )
+
+        checks = [row[0] for row in (await session.execute(query)).fetchall()].sort(
+            key=lambda check: check.date, reverse=True
+        )
         return (
-            {"checks": [await cls.get_check_with_positions(check) for check in checks[:count]]}
+            {"checks": [change_format(check.__dict__) for check in checks[:count]]}
             if checks is not None
             else None
         )

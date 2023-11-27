@@ -9,6 +9,7 @@ dict_without_none_values: Callable[[dict], dict] = lambda dict: {
     k: v for k, v in dict.items() if v is not None
 }
 
+
 def check_user(user: JWTUser, **kwargs) -> bool:
     print(user)
     check_fields = ["ownerId", "organizationId", "workerId"]
@@ -57,9 +58,15 @@ def change_format(body: dict) -> dict:
         "type_taxation": "taxSystem",
         "taxSystem": "type_taxation",
         "positions": "positions",
+<<<<<<< HEAD
         
         "timeStart": "time_start",
         "timeEnd": "time_end",
+=======
+        "timeStart": "time_start",
+        "timeEnd": "time_end",
+        "count": "count",
+>>>>>>> 28f64fc686bbe12aaefb2a37610f75e106d4b52b
     }
     for name in naming_map.keys():
         if name in body:

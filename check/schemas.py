@@ -20,13 +20,17 @@ class CheckSchema(BaseModel):
     check_status: str
     type_taxation: str
     reason_id: str
-    
+
+
 class BaseCheckRequestSchema(BaseModel):
     ownerId: uuid.UUID
-    organizationId: uuid.UUID    
-    
+    organizationId: uuid.UUID
+
+
 class GetChecksRequestSchema(BaseCheckRequestSchema):
     storeId: uuid.UUID | None = None
     cashShiftId: uuid.UUID | None = None
+    timeStart: datetime | None = None
+    timeEnd: datetime | None = None
     status: int | None = None
-    count: int = 10 
+    count: int | None = None
