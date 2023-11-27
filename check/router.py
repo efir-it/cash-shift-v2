@@ -8,11 +8,18 @@ from auth.schemas import JWTUser
 from cash_shift.dao import CheckoutShiftDAO
 from check.dao import CheckDAO
 from check.schemas import GetChecksRequestSchema
-from check.utils import CheckStatuses, TypesOperations, change_format, check_user, dict_without_none_values
+from check.utils import (
+    CheckStatuses,
+    TypesOperations,
+    change_format,
+    check_user,
+    dict_without_none_values,
+)
 from event.producers import ReturnCheckProducer, SaleCheckProducer
 from exceptions import NotFound, PermissionDenied
 
 router = APIRouter(prefix="/checkoutShift", tags=["Чеки"])
+
 
 @router.get("/getCashReceipts")
 async def get_checks(
@@ -28,20 +35,19 @@ async def get_checks(
     ):
         raise PermissionDenied
 
-    checks = await CheckDAO.json_get_several(params.count, change_format(dict_without_none_values(params.__dict__)))
-    
-    return JSONResponse(content=checks, status_code=200)
-    
-    
-    
+    checks = await CheckDAO.json_get_several(
+        change_format(dict_without_none_values(params.__dict__))
+    )
+
+    return checks
+
+
 @router.get("/getCashReceipt")
 async def get_check(
     ownerId: str,
     organizationId: str,
     cashReceiptId: str,
-    user: JWTUser = Security(
-        get_current_user, scopes=["checkoutShift/getCashReceipt"]
-    ),
+    user: JWTUser = Security(get_current_user, scopes=["checkoutShift/getCashReceipt"]),
 ):
     if not check_user(
         user,
@@ -110,7 +116,10 @@ async def close_check(
             "owner_id": uuid.UUID(ownerId),
             "organization_id": uuid.UUID(organizationId),
         },
-        data={"check_status": CheckStatuses.CLOSED.value, "date": datetime.datetime.utcnow()},
+        data={
+            "check_status": CheckStatuses.CLOSED.value,
+            "date": datetime.datetime.utcnow(),
+        },
     )
 
     if check is not None:
