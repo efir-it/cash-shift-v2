@@ -57,6 +57,9 @@ def change_format(body: dict) -> dict:
         "type_taxation": "taxSystem",
         "taxSystem": "type_taxation",
         "positions": "positions",
+        
+        "timeStart": "time_start",
+        "timeEnd": "time_end",
     }
     for name in naming_map.keys():
         if name in body:

@@ -1,4 +1,5 @@
 import asyncio
+from config import settings
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,15 +19,10 @@ app = App()
 app.include_router(router_cash_shift)
 app.include_router(router_check)
 
-origins = [
-    "http://localhost:3000",
-    "http://192.168.50.139:3000",
-    "http://192.168.50.11:3000",
-]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.ORIGINS.split(";"),
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
     allow_headers=[
