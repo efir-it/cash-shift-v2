@@ -87,15 +87,16 @@ class CheckDAO(BaseDAO):
                     )
                 )
             )
-
-        checks = [row[0] for row in (await session.execute(query)).fetchall()].sort(
-            key=lambda check: check.date, reverse=True
-        )
-        return (
-            {"checks": [change_format(check.__dict__) for check in checks[:count]]}
-            if checks is not None
-            else None
-        )
+            checks = [row[0] for row in (await session.execute(query)).fetchall()]
+            
+            checks.sort(
+                key=lambda check: check.date, reverse=True
+            )
+            return (
+                {"checks": [change_format(check.__dict__) for check in checks[:count]]}
+                if checks is not None
+                else None
+            )
 
     @classmethod
     async def json_add(cls, data: dict) -> Optional[dict]:

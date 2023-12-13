@@ -21,7 +21,7 @@ def check_user(user: JWTUser, **kwargs) -> bool:
             field_from_request = kwargs.get(field, None)
             if (
                 field_from_request is not None
-                and user.data.get(field) != field_from_request
+                and str(user.data.get(field)) != str(field_from_request)
             ):
                 return False
 
@@ -58,15 +58,9 @@ def change_format(body: dict) -> dict:
         "type_taxation": "taxSystem",
         "taxSystem": "type_taxation",
         "positions": "positions",
-<<<<<<< HEAD
-        
-        "timeStart": "time_start",
-        "timeEnd": "time_end",
-=======
         "timeStart": "time_start",
         "timeEnd": "time_end",
         "count": "count",
->>>>>>> 28f64fc686bbe12aaefb2a37610f75e106d4b52b
     }
     for name in naming_map.keys():
         if name in body:
