@@ -16,8 +16,14 @@ class PermissionDenied(DetailedHTTPException):
     DETAIL = "Permission denied"
 
 
-class NotFound(DetailedHTTPException):
+class ReceiptNotFound(DetailedHTTPException):
     STATUS_CODE = status.HTTP_404_NOT_FOUND
+    DETAIL = "Receipt not found"
+
+
+class CheckoutShiftNotFound(DetailedHTTPException):
+    STATUS_CODE = status.HTTP_404_NOT_FOUND
+    DETAIL = "Checkout Shift not found"
 
 
 class BadRequest(DetailedHTTPException):

@@ -3,175 +3,143 @@ import uuid
 
 from fastapi import APIRouter, Depends, Security
 from fastapi.responses import JSONResponse
+
 from auth.dependencies import get_current_user
 from auth.schemas import JWTUser
 from cash_shift.dao import CheckoutShiftDAO
+from cash_shift.schemas import CashShiftResponse, CashShiftWithReceiptsResponse
 from check.dao import CheckDAO
-from check.schemas import GetChecksRequestSchema
-from check.utils import (
-    CheckStatuses,
-    TypesOperations,
-    change_format,
-    check_user,
-    dict_without_none_values,
+from check.schemas import (
+    ReceiptCreateRequest,
+    ReceiptCreateRequestBody,
+    ReceiptRequest,
+    ReceiptResponse,
+    ReceiptsRequest,
+    ReceiptsResponse,
+    ReceiptStatus,
+    ReceiptUpdateRequestBody,
+    ReceiptWithPositionsResponse,
+    TypeOperation,
 )
+from check.utils import change_format, check_user, dict_without_none_values
 from event.producers import ReturnCheckProducer, SaleCheckProducer
-from exceptions import NotFound, PermissionDenied
+from exceptions import PermissionDenied, ReceiptNotFound
 
 router = APIRouter(prefix="/checkoutShift", tags=["Чеки"])
 
 
 @router.get("/getCashReceipts")
-async def get_checks(
-    params: GetChecksRequestSchema = Depends(),
-    user: JWTUser = Security(
-        get_current_user, scopes=["checkoutShift/getCashReceipts"]
-    ),
-):
-    if not check_user(
-        user,
-        ownerId=params.ownerId,
-        organizationId=params.organizationId,
-    ):
-        raise PermissionDenied
-
-    checks = await CheckDAO.json_get_several(
-        change_format(dict_without_none_values(params.__dict__))
+async def get_checks(params: ReceiptsRequest = Depends()) -> ReceiptsResponse:
+    receipts: list[ReceiptResponse] = await CheckDAO.get_all_receipts(
+        params.model_dump(exclude_none=True)
     )
 
-    return checks
+    return JSONResponse(
+        content=ReceiptsResponse(receipts=receipts).model_dump(by_alias=True),
+        status_code=200,
+    )
 
 
 @router.get("/getCashReceipt")
-async def get_check(
-    ownerId: str,
-    organizationId: str,
-    cashReceiptId: str,
-    user: JWTUser = Security(get_current_user, scopes=["checkoutShift/getCashReceipt"]),
-):
-    if not check_user(
-        user,
-        ownerId=ownerId,
-        organizationId=organizationId,
-    ):
-        raise PermissionDenied
+async def get_check(params: ReceiptRequest = Depends()) -> ReceiptWithPositionsResponse:
+    receipt: ReceiptWithPositionsResponse | None = await CheckDAO.get_one_receipt(
+        params.model_dump(exclude_none=True)
+    )
 
-    check = await CheckDAO.json_find_one(id=uuid.UUID(cashReceiptId))
-    if check:
-        return JSONResponse(content=check, status_code=200)
+    if receipt is not None:
+        return JSONResponse(content=receipt.model_dump(by_alias=True), status_code=200)
     else:
-        raise NotFound
+        raise ReceiptNotFound
 
 
 @router.post("/createCashReceipt")
 async def add_check(
-    ownerId: str,
-    organizationId: str,
-    storeId: str,
-    checkoutShiftId: str,
-    user: JWTUser = Security(
-        get_current_user, scopes=["checkoutShift/createCashReceipt"]
-    ),
-    **body: dict,
-):
-    if not check_user(
-        user,
-        ownerId=ownerId,
-        organizationId=organizationId,
-    ):
-        raise PermissionDenied
-
-    check = await CheckDAO.json_add(
-        {
-            **change_format(**body),
-            "owner_id": uuid.UUID(ownerId),
-            "store_id": uuid.UUID(storeId),
-            "organization_id": uuid.UUID(organizationId),
-            "cash_shift_id": uuid.UUID(checkoutShiftId),
-            "check_status": CheckStatuses.CREATED.value,
-            "date": datetime.datetime.utcnow(),
-        }
+    body: ReceiptCreateRequestBody,
+    params: ReceiptCreateRequest = Depends(),
+) -> ReceiptWithPositionsResponse:
+    receipt: ReceiptWithPositionsResponse | None = await CheckDAO.create_receipt(
+        {**params.model_dump(exclude_none=True), **body.model_dump(exclude_none=True)}
     )
-    if check:
-        return JSONResponse(content=check, status_code=200)
+
+    if receipt is not None:
+        return JSONResponse(content=receipt.model_dump(by_alias=True), status_code=200)
     else:
-        raise NotFound
+        raise ReceiptNotFound
+
+
+@router.patch("/updateCashReceipt")
+async def update_check(
+    body: ReceiptUpdateRequestBody,
+    params: ReceiptCreateRequest = Depends(),
+) -> ReceiptWithPositionsResponse:
+    receipt: ReceiptWithPositionsResponse | None = await CheckDAO.update_receipt(
+        params.model_dump(exclude_none=True), {**body.model_dump(exclude_none=True)}
+    )
+
+    if receipt is not None:
+        return JSONResponse(content=receipt.model_dump(by_alias=True), status_code=200)
+    else:
+        raise ReceiptNotFound
 
 
 @router.patch("/closeCashReceipt")
 async def close_check(
-    ownerId: str,
-    organizationId: str,
-    cashReceiptId: str,
-    user: JWTUser = Security(
-        get_current_user, scopes=["checkoutShift/closeCashReceipt"]
-    ),
-):
-    if not check_user(user, ownerId=ownerId, organizationId=organizationId):
-        raise PermissionDenied
-
-    check = await CheckDAO.json_update(
-        id=uuid.UUID(cashReceiptId),
-        filter_by={
-            "owner_id": uuid.UUID(ownerId),
-            "organization_id": uuid.UUID(organizationId),
-        },
-        data={
-            "check_status": CheckStatuses.CLOSED.value,
-            "date": datetime.datetime.utcnow(),
-        },
+    params: ReceiptRequest = Depends(),
+) -> ReceiptWithPositionsResponse:
+    receipt: ReceiptWithPositionsResponse | None = await CheckDAO.close_receipt(
+        params.model_dump(exclude_none=True)
     )
 
-    if check is not None:
-        cash_shift = await CheckoutShiftDAO.json_find_one(
-            id=uuid.UUID(check["checkoutShiftId"])
-        )
+    if receipt is not None:
         producer = (
             SaleCheckProducer()
-            if check["typeOperation"] == TypesOperations.SELL.value
+            if receipt.type_operation == TypeOperation.SELL
             else None
         )
         producer = (
             ReturnCheckProducer()
-            if check["typeOperation"] == TypesOperations.RETURN.value
+            if receipt.type_operation == TypeOperation.RETURN
             else producer
         )
         if producer is not None:
+            checkout_shift: CashShiftWithReceiptsResponse = (
+                await CheckoutShiftDAO.get_one_checkout_shift(
+                    {"id": receipt.cash_shift_id}
+                )
+            )
             await producer.send_messages(
                 {
-                    "cashReceiptId": check["id"],
-                    "storeId": cash_shift["storeId"],
-                    "ownerId": ownerId,
-                    "organizationId": organizationId,
-                    "createTime": check["date"] + "+00:00",
-                    "workerId": cash_shift["workerId"],
+                    "cashReceiptId": str(receipt.id),
+                    "storeId": str(receipt.store_id),
+                    "ownerId": str(receipt.owner_id),
+                    "organizationId": str(params.organization_id),
+                    "createTime": datetime.datetime.strftime(
+                        receipt.date, "%Y-%m-%dT%H:%M:%S"
+                    )
+                    + "+00:00",
+                    "workerId": str(checkout_shift.worker_id),
                     "positions": [
-                        {"productId": position["id"], "productCount": position["count"]}
-                        for position in check["positions"]
+                        {"productId": str(position.id), "productCount": position.count}
+                        for position in receipt.positions
                     ],
                 }
             )
             producer.connection_close()
-        return JSONResponse(content=check, status_code=200)
+
+        return JSONResponse(content=receipt.model_dump(by_alias=True), status_code=200)
     else:
-        raise NotFound
+        raise ReceiptNotFound
 
 
 @router.delete("/removeCashReceipt")
 async def remove_check(
-    ownerId: str,
-    organizationId: str,
-    cashReceiptId: str,
-    user: JWTUser = Security(
-        get_current_user, scopes=["checkoutShift/removeCashReceipt"]
-    ),
-):
-    if not check_user(user, ownerId=ownerId, organizationId=organizationId):
-        raise PermissionDenied
+    params: ReceiptRequest = Depends(),
+) -> ReceiptWithPositionsResponse:
+    receipt: ReceiptWithPositionsResponse | None = await CheckDAO.remove_receipt(
+        params.model_dump(exclude_none=True)
+    )
 
-    check = await CheckDAO.json_remove(id=uuid.UUID(cashReceiptId))
-
-    if check:
-        return JSONResponse(content=check, status_code=200)
+    if receipt:
+        return JSONResponse(content=receipt.model_dump(by_alias=True), status_code=200)
     else:
-        raise NotFound
+        raise ReceiptNotFound

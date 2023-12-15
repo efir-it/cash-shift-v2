@@ -4,53 +4,44 @@ from typing import Optional
 from sqlalchemy import Select, and_, select, true
 
 import position_check.utils as position_utils
-from check.models import Check
-from check.utils import CheckStatuses, change_format
+from check.models import Receipt
+from check.schemas import ReceiptResponse, ReceiptStatus, ReceiptWithPositionsResponse
+from check.utils import change_format
 from dao.base import BaseDAO
-from position_check.dao import PositionCheckDAO
 from database import async_session_maker
+from position_check.dao import PositionCheckDAO
+from position_check.models import PositionCheck
+from position_check.schemas import PositionResponse
 
 
 class CheckDAO(BaseDAO):
-    model = Check
+    model = Receipt
 
     @classmethod
-    async def get_check_with_positions(
-        cls, check, positions: list = None
-    ) -> Optional[dict]:
+    async def get_one_receipt(
+        cls, filter_by: dict = {}
+    ) -> Optional[ReceiptWithPositionsResponse]:
+        receipt: Receipt = await cls.get_one_or_none(filter_by)
+
         return (
-            change_format(
-                {
-                    **check.__dict__,
-                    "positions": (
-                        await PositionCheckDAO.json_get_all({"check_id": check.id})
-                    )["positions_check"]
-                    if positions is None
-                    else positions,
-                }
+            ReceiptWithPositionsResponse(
+                positions=await PositionCheckDAO.get_all_positions(
+                    {"check_id": receipt.id}
+                ),
+                **receipt.__dict__,
             )
-            if check is not None
+            if receipt is not None
             else None
         )
 
-    @classmethod
-    async def json_find_one(cls, id, filter_by: dict = {}) -> Optional[dict]:
-        check = await cls.get_one_or_none({"id": id, **filter_by})
+    # @classmethod
+    # async def get_all_receipts(cls, filter_by: dict = {}) -> dict:
+    #     checks: list[Receipt] = await cls.get_all(filter_by)
 
-        return await cls.get_check_with_positions(check)
-
-    @classmethod
-    async def json_get_all(cls, filter_by: dict = {}) -> dict:
-        checks = await cls.get_all(filter_by)
-
-        return (
-            {"checks": [await cls.get_check_with_positions(check) for check in checks]}
-            if checks is not None
-            else None
-        )
+    #     return [ReceiptResponse(**check.__dict__) for check in checks]
 
     @classmethod
-    async def json_get_several(cls, filter_by: dict = {}) -> dict:
+    async def get_all_receipts(cls, filter_by: dict = {}) -> list[ReceiptResponse]:
         time_start = filter_by.pop("time_start", None)
         time_end = filter_by.pop("time_end", None)
         count = filter_by.pop("count", None)
@@ -64,74 +55,121 @@ class CheckDAO(BaseDAO):
                 .filter_by(
                     **filter_by,
                 )
-                .where(
-                    and_(
-                        (
-                            cls.model.date
-                            > datetime.datetime.strptime(
-                                time_start, "%Y-%m-%dT%H:%M:%S"
-                            )
-                        )
-                        if time_start
-                        else true()
-                    )
-                )
-                .where(
-                    and_(
-                        (
-                            cls.model.date
-                            < datetime.datetime.strptime(time_end, "%Y-%m-%dT%H:%M:%S")
-                        )
-                        if time_end
-                        else true()
-                    )
-                )
-            )
-            checks = [row[0] for row in (await session.execute(query)).fetchall()]
-            
-            checks.sort(
-                key=lambda check: check.date, reverse=True
-            )
-            return (
-                {"checks": [change_format(check.__dict__) for check in checks[:count]]}
-                if checks is not None
-                else None
+                .where(and_((cls.model.date > time_start) if time_start else true()))
+                .where(and_((cls.model.date < time_end)) if time_end else true())
             )
 
+            receipts: list[Receipt] = [
+                row[0] for row in (await session.execute(query)).fetchall()
+            ]
+            receipts.sort(key=lambda check: check.date, reverse=True)
+
+            return [ReceiptResponse(**receipt.__dict__) for receipt in receipts[:count]]
+
     @classmethod
-    async def json_add(cls, data: dict) -> Optional[dict]:
-        positions_check = data.pop("positions", [])
-        check = await cls.add(data)
-        for position_num, position in enumerate(positions_check):
+    async def create_receipt(
+        cls, data: dict = {}
+    ) -> Optional[ReceiptWithPositionsResponse]:
+        positions = data.pop("positions", [])
+
+        receipt: Receipt = await cls.add(
+            {
+                **data,
+                "date": datetime.datetime.utcnow(),
+                "check_status": ReceiptStatus.CREATED.value,
+            }
+        )
+        for position_num, position in enumerate(positions):
             await PositionCheckDAO.add(
                 {
-                    **position_utils.change_format(position),
-                    "owner_id": check.owner_id,
-                    "check_id": check.id,
+                    **position,
+                    "owner_id": receipt.owner_id,
+                    "check_id": receipt.id,
                     "position": position_num + 1,
                 }
             )
-        return await cls.get_check_with_positions(check)
-
-    @classmethod
-    async def json_remove(cls, id, filter_by: dict = {}) -> Optional[dict]:
-        positions = await PositionCheckDAO.json_get_all({"check_id": id})
-        checks = await cls.delete({**filter_by, "id": id})
-
         return (
-            await cls.get_check_with_positions(checks[0], positions)
-            if checks is not None and len(checks) > 0
+            ReceiptWithPositionsResponse(
+                positions=await PositionCheckDAO.get_all_positions(
+                    {"check_id": receipt.id}
+                ),
+                **receipt.__dict__,
+            )
+            if receipt is not None
             else None
         )
 
     @classmethod
-    async def json_update(
-        cls, id, filter_by: dict = {}, data: dict = {}
-    ) -> Optional[dict]:
-        checks = await cls.update({"id": id, **filter_by}, data)
+    async def update_receipt(
+        cls, filter_by: dict = {}, data: dict = {}
+    ) -> Optional[ReceiptWithPositionsResponse]:
+        positions = data.pop("positions", None)
+
+        receipt: Receipt = await cls.update(
+            filter_by, {**data, "date": datetime.datetime.utcnow()}
+        )
+
+        if positions is not None:
+            await PositionCheckDAO.delete({"check_id": filter_by["id"]})
+            for position_num, position in enumerate(positions):
+                await PositionCheckDAO.add(
+                    {
+                        **position,
+                        "owner_id": receipt.owner_id,
+                        "check_id": receipt.id,
+                        "position": position_num + 1,
+                    }
+                )
 
         return (
-            await cls.get_check_with_positions(checks[0])
-            if checks is not None and len(checks) > 0
+            ReceiptWithPositionsResponse(
+                positions=await PositionCheckDAO.get_all_positions(
+                    {"check_id": receipt.id}
+                ),
+                **receipt.__dict__,
+            )
+            if receipt is not None
+            else None
+        )
+
+    @classmethod
+    async def close_receipt(
+        cls, filter_by: dict = {}
+    ) -> Optional[ReceiptWithPositionsResponse]:
+        receipts: list[Receipt] = await cls.update(
+            filter_by,
+            {
+                "check_status": ReceiptStatus.CLOSED.value,
+                "date": datetime.datetime.utcnow(),
+            },
+        )
+
+        return (
+            ReceiptWithPositionsResponse(
+                positions=await PositionCheckDAO.get_all_positions(
+                    {"check_id": receipts[0].id}
+                ),
+                **receipts[0].__dict__,
+            )
+            if len(receipts) > 0
+            else None
+        )
+
+    @classmethod
+    async def remove_receipt(
+        cls, filter_by: dict = {}
+    ) -> Optional[ReceiptWithPositionsResponse]:
+        positions: list[PositionResponse] = await PositionCheckDAO.get_all_positions(
+            {"check_id": filter_by["id"]}
+        )
+
+        receipts: list[Receipt] = await cls.delete(filter_by)
+
+        return (
+            ReceiptWithPositionsResponse(
+                positions=positions,
+                **receipts[0].__dict__,
+            )
+            if len(receipts) > 0
             else None
         )

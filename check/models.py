@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
 
-class Check(Base):
+class Receipt(Base):
     """
     Модель чека
     """

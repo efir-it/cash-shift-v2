@@ -1,36 +1,129 @@
+import enum
+import json
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
+
+from position_check.schemas import PositionCreateRequest, PositionResponse
 
 
-class CheckSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+class TypePayment(enum.Enum):
+    TEST = 0
+    CASH = 1
+    CASHLESS = 2
 
+
+class ReceiptStatus(enum.Enum):
+    TEST = 0
+    CREATED = 1
+    CLOSED = 2
+
+
+class TypeOperation(enum.Enum):
+    TEST = 0
+    SELL = 1
+    RETURN = 2
+
+
+class TypeTaxation(enum.Enum):
+    TEST = 0
+
+
+class BaseReceipt(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    @field_serializer("id", "store_id", "owner_id", "cash_shift_id", check_fields=False)
+    def uuid_to_str(uuid: uuid.UUID):
+        return str(uuid) if uuid else None
+
+    @field_serializer("date", check_fields=False)
+    def datetime_to_str(date: datetime):
+        return datetime.strftime(date, "%Y-%m-%dT%H:%M:%S")
+
+    @field_serializer(
+        "type_operation",
+        "type_payment",
+        "check_status",
+        "type_taxation",
+        check_fields=False,
+    )
+    def enum_to_str(type_value):
+        if type(type_value) != str:
+            return type_value.value
+
+        return type_value
+
+
+class ReceiptResponse(BaseReceipt):
     id: uuid.UUID
-    owner_id: uuid.UUID
-    worker_id: uuid.UUID
+    owner_id: uuid.UUID = Field(alias="ownerId")
+    store_id: uuid.UUID = Field(alias="storeId")
+    cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
+    reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
+    number: str = Field(alias="cashRegisterCheckNumber")
+    number_fiscal_document: str = Field(alias="fiscalDocumentNumber")
     date: datetime
-    number: str
-    amount: int
-    number_fiscal_document: str
-    cash_shift_id: uuid.UUID
-    type_operation: str
-    type_payment: str
-    check_status: str
-    type_taxation: str
-    reason_id: str
+    amount: int = Field(alias="sum")
+    type_operation: TypeOperation = Field(alias="typeOperation")
+    type_payment: TypePayment = Field(alias="typePayment")
+    check_status: ReceiptStatus = Field(alias="status")
+    type_taxation: TypeTaxation = Field(alias="taxSystem")
 
 
-class BaseCheckRequestSchema(BaseModel):
-    ownerId: uuid.UUID
-    organizationId: uuid.UUID
+class ReceiptWithPositionsResponse(ReceiptResponse):
+    positions: list[PositionResponse]
 
 
-class GetChecksRequestSchema(BaseCheckRequestSchema):
-    storeId: uuid.UUID | None = None
-    cashShiftId: uuid.UUID | None = None
-    timeStart: datetime | None = None
-    timeEnd: datetime | None = None
-    status: int | None = None
-    count: int | None = None
+class ReceiptsResponse(BaseReceipt):
+    receipts: list[ReceiptResponse]
+
+
+class BaseRequest(BaseReceipt):
+    owner_id: uuid.UUID = Field(alias="ownerId")
+    organization_id: uuid.UUID = Field(alias="organizationId")
+
+
+class ReceiptRequest(BaseRequest):
+    id: uuid.UUID = Field(alias="cashReceiptId")
+
+
+class ReceiptCreateRequest(BaseRequest):
+    store_id: uuid.UUID = Field(alias="storeId")
+    cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
+    # worker_id: uuid.UUID = Field(alias="workerId", default=None)
+
+
+class ReceiptCreateRequestBody(BaseReceipt):
+    reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
+    number: str = Field(alias="cashRegisterCheckNumber")
+    number_fiscal_document: str = Field(alias="fiscalDocumentNumber")
+    amount: int = Field(alias="sum")
+    type_operation: TypeOperation = Field(alias="typeOperation")
+    type_payment: TypePayment = Field(alias="typePayment")
+    type_taxation: TypeTaxation = Field(alias="taxSystem")
+
+    positions: list[PositionCreateRequest] = []
+
+
+class ReceiptUpdateRequestBody(BaseReceipt):
+    reason_id: uuid.UUID = Field(alias="reasonId", default=None)
+    number: str = Field(alias="cashRegisterCheckNumber", default=None)
+    number_fiscal_document: str = Field(alias="fiscalDocumentNumber", default=None)
+    amount: int = Field(alias="sum", default=None)
+    type_operation: TypeOperation = Field(alias="typeOperation", default=None)
+    type_payment: TypePayment = Field(alias="typePayment", default=None)
+    type_taxation: TypeTaxation = Field(alias="taxSystem", default=None)
+
+    positions: list[PositionCreateRequest] = []
+
+
+class ReceiptsRequest(BaseReceipt):
+    store_id: uuid.UUID | None = Field(alias="storeId", default=None)
+    cash_shift_id: uuid.UUID | None = Field(alias="cashShiftId", default=None)
+    time_start: datetime | None = Field(alias="timeStart", default=None)
+    time_end: datetime | None = Field(alias="timeEnd", default=None)
+    status: ReceiptStatus | None = Field(default=None)
+    count: int | None = Field(default=None)

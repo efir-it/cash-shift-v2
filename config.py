@@ -83,7 +83,7 @@ class Settings(BaseSettings):
     TEST_ORGANIZATION_ID: Optional[str] = None
     TEST_WORKER_ID: Optional[str] = None
     TEST_TIMEDELTA: Optional[int] = None
-    
+
     ORIGINS: str
 
 

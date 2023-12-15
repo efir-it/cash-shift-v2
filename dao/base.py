@@ -4,16 +4,7 @@ Data access object - интерфейс для взаимодействия с �
 
 from typing import Any, Optional
 
-from sqlalchemy import (
-    Delete,
-    Insert,
-    Select,
-    Update,
-    delete,
-    insert,
-    select,
-    update,
-)
+from sqlalchemy import Delete, Insert, Select, Update, delete, insert, select, update
 
 from database import async_session_maker
 

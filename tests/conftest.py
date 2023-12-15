@@ -8,7 +8,7 @@ from jose import jwt
 from sqlalchemy import insert
 
 from cash_shift.models import CashShift
-from check.models import Check
+from check.models import Receipt
 from config import settings
 from database import Base, async_session_maker, engine
 from event.models import Event
@@ -89,7 +89,7 @@ async def prepare_database():
 
     async with async_session_maker() as session:
         add_cash_shift = insert(CashShift).values(cash_shift)
-        add_check = insert(Check).values(check)
+        add_check = insert(Receipt).values(check)
         add_rabbit_event = insert(Event).values(rabbit_event)
         await session.execute(add_cash_shift)
         await session.execute(add_check)

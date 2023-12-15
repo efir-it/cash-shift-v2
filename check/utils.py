@@ -19,9 +19,8 @@ def check_user(user: JWTUser, **kwargs) -> bool:
     if user.role == "worker":
         for field in check_fields:
             field_from_request = kwargs.get(field, None)
-            if (
-                field_from_request is not None
-                and str(user.data.get(field)) != str(field_from_request)
+            if field_from_request is not None and str(user.data.get(field)) != str(
+                field_from_request
             ):
                 return False
 
@@ -73,21 +72,3 @@ def change_format(body: dict) -> dict:
             else:
                 result[naming_map[name]] = body[name]
     return result
-
-
-class TypesPayment(enum.Enum):
-    TEST = 0
-    CASH = 1
-    CASHLESS = 2
-
-
-class CheckStatuses(enum.Enum):
-    TEST = 0
-    CREATED = 1
-    CLOSED = 2
-
-
-class TypesOperations(enum.Enum):
-    TEST = 0
-    SELL = 1
-    RETURN = 2

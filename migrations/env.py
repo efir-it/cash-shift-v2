@@ -16,7 +16,7 @@ sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
 
 from cash_shift.models import CashShift
-from check.models import Check
+from check.models import Receipt
 from database import DATABASE_URL, Base
 from event.models import Event
 from position_check.models import PositionCheck

@@ -24,4 +24,4 @@ class CashShift(Base):
     closed: Mapped[bool] = mapped_column(nullable=False, default=False)
     hide: Mapped[bool] = mapped_column(nullable=False, default=False)
 
-    checks: Mapped[list["Check"]] = relationship(back_populates="cash_shift")
+    checks: Mapped[list["Receipt"]] = relationship(back_populates="cash_shift")

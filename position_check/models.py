@@ -24,4 +24,4 @@ class PositionCheck(Base):
     check_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("checks.id", ondelete="CASCADE")
     )
-    check: Mapped["Check"] = relationship(back_populates="positions")
+    check: Mapped["Receipt"] = relationship(back_populates="positions")
