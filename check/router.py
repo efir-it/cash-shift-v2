@@ -25,7 +25,7 @@ from check.utils import change_format, check_user, dict_without_none_values
 from event.producers import ReturnCheckProducer, SaleCheckProducer
 from exceptions import PermissionDenied, ReceiptNotFound
 
-router = APIRouter(prefix="/checkoutShift", tags=["Чеки"])
+router = APIRouter(prefix="/checkoutReceipt", tags=["Чеки"])
 
 
 @router.get("/getCashReceipts")

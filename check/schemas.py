@@ -35,7 +35,7 @@ class BaseReceipt(BaseModel):
         populate_by_name=True,
     )
 
-    @field_serializer("id", "store_id", "owner_id", "cash_shift_id", check_fields=False)
+    @field_serializer("id", "store_id", "owner_id", "cash_shift_id", "reason_id", check_fields=False)
     def uuid_to_str(uuid: uuid.UUID):
         return str(uuid) if uuid else None
 

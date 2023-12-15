@@ -1,6 +1,6 @@
 import asyncio
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from cash_shift.router import router as router_cash_shift
@@ -16,8 +16,11 @@ class App(FastAPI):
 
 
 app = App(title="Efirit CheckoutShift Module", version="0.2")
-app.include_router(router_cash_shift)
-app.include_router(router_check)
+cash_router = APIRouter(prefix="/checkoutShift")
+cash_router.include_router(router_cash_shift)
+cash_router.include_router(router_check)
+
+app.include_router(cash_router)
 
 
 app.add_middleware(

@@ -45,6 +45,7 @@ async def get_checkout_shift(
         )
     )
 
+    print(checkout_shift.model_dump(by_alias=True))
     if checkout_shift is not None:
         return JSONResponse(
             content=checkout_shift.model_dump(by_alias=True), status_code=200
