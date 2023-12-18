@@ -8,19 +8,19 @@ from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from position_check.schemas import PositionCreateRequest, PositionResponse
 
 
-class TypePayment(enum.Enum):
+class TypePayment(enum.IntEnum):
     TEST = 0
     CASH = 1
     CASHLESS = 2
 
 
-class ReceiptStatus(enum.Enum):
+class ReceiptStatus(enum.IntEnum):
     TEST = 0
     CREATED = 1
     CLOSED = 2
 
 
-class TypeOperation(enum.Enum):
+class TypeOperation(enum.IntEnum):
     TEST = 0
     SELL = 1
     RETURN = 2
@@ -125,5 +125,5 @@ class ReceiptsRequest(BaseReceipt):
     cash_shift_id: uuid.UUID | None = Field(alias="cashShiftId", default=None)
     time_start: datetime | None = Field(alias="timeStart", default=None)
     time_end: datetime | None = Field(alias="timeEnd", default=None)
-    status: ReceiptStatus | None = Field(default=None)
+    check_status: ReceiptStatus | None = Field(default=None, alias="status")
     count: int | None = Field(default=None)
