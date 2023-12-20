@@ -38,7 +38,7 @@ class CashShiftResponse(BaseCashShift):
     owner_id: uuid.UUID = Field(alias="ownerId")
     store_id: uuid.UUID = Field(alias="storeId")
     workplace_id: uuid.UUID = Field(alias="workplaceId")
-    worker_id: uuid.UUID = Field(alias="workerId")
+    worker_id: uuid.UUID | None = Field(alias="workerId", default=None)
     cash_registr_id: uuid.UUID = Field(alias="cashRegistrId")
     closed: bool
     hide: bool = Field(alias="hidden")
@@ -65,7 +65,7 @@ class CashShiftsRequest(BaseRequest):
 
 
 class CashShiftRequest(BaseRequest):
-    worker_id: uuid.UUID = Field(alias="workerId")
+    worker_id: uuid.UUID | None = Field(alias="workerId", default=None)
     id: uuid.UUID = Field(alias="checkoutShiftId")
 
 
@@ -75,7 +75,7 @@ class CashShiftLastRequest(BaseRequest):
 
 
 class CashShiftOpenRequest(BaseRequest):
-    worker_id: uuid.UUID = Field(alias="workerId")
+    worker_id: uuid.UUID | None = Field(alias="workerId", default=None)
 
 
 class CashShiftOpenRequestBody(BaseCashShift):
