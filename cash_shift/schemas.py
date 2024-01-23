@@ -1,9 +1,11 @@
+from dataclasses import dataclass
 import enum
 import json
+from typing import Annotated
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, model_serializer
 
 from check.schemas import ReceiptResponse, ReceiptWithPositionsResponse
 
@@ -15,15 +17,15 @@ class BaseCashShift(BaseModel):
 
     @field_serializer(
         "id",
-        "worker_id",
         "owner_id",
+        "worker_id",
         "organization_id",
         "store_id",
         "workplace_id",
         "cash_registr_id",
         check_fields=False,
     )
-    def uuid_to_str(uuid: uuid.UUID):
+    def uuid_to_str(uuid: uuid.UUID | None):
         return str(uuid) if uuid else None
 
     @field_serializer("date", check_fields=False)
@@ -69,8 +71,10 @@ class CashShiftRequest(BaseRequest):
     id: uuid.UUID = Field(alias="checkoutShiftId")
 
 
-class CashShiftLastRequest(BaseRequest):
-    store_id: uuid.UUID = Field(alias="storeId")
+class CashShiftUserLastRequest(BaseRequest):
+    worker_id: uuid.UUID | None = Field(alias="workerId", default=None)
+    
+class CashShiftWorkplaceLastRequest(BaseRequest):
     workplace_id: uuid.UUID = Field(alias="workplaceId")
 
 

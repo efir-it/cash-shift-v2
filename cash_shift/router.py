@@ -3,11 +3,12 @@ from fastapi.responses import JSONResponse
 
 from cash_shift.dao import CheckoutShiftDAO
 from cash_shift.schemas import (
-    CashShiftLastRequest,
+    CashShiftUserLastRequest,
     CashShiftOpenRequest,
     CashShiftOpenRequestBody,
     CashShiftRequest,
     CashShiftResponse,
+    CashShiftWorkplaceLastRequest,
     CashShiftsRequest,
     CashShiftsResponse,
     CashShiftWithReceiptsResponse,
@@ -21,6 +22,7 @@ router = APIRouter(prefix="/checkoutShift", tags=["Кассовые смены"]
 async def get_checkout_shift_list(
     params: CashShiftsRequest = Depends(),
 ) -> CashShiftsResponse:
+    
     checkout_shifts: list[
         CashShiftResponse
     ] = await CheckoutShiftDAO.get_all_checkout_shifts(
@@ -45,7 +47,6 @@ async def get_checkout_shift(
         )
     )
 
-    print(checkout_shift.model_dump(by_alias=True))
     if checkout_shift is not None:
         return JSONResponse(
             content=checkout_shift.model_dump(by_alias=True), status_code=200
@@ -54,13 +55,30 @@ async def get_checkout_shift(
         raise CheckoutShiftNotFound
 
 
-@router.get("/getLastCheckoutShift")
+@router.get("/getLastUserCheckoutShift")
 async def get_last_checkout_shift(
-    params: CashShiftLastRequest = Depends(),
+    params: CashShiftUserLastRequest = Depends(),
 ) -> CashShiftWithReceiptsResponse:
     checkout_shift: CashShiftWithReceiptsResponse | None = (
         await CheckoutShiftDAO.get_last_checkout_shift(
-            params.model_dump(exclude_none=True)
+            {**params.model_dump(exclude_none=True), **params.model_dump(include="worker_id"), "closed": False}
+        )
+    )
+
+    if checkout_shift is not None:
+        return JSONResponse(
+            content=checkout_shift.model_dump(by_alias=True), status_code=200
+        )
+    else:
+        raise CheckoutShiftNotFound
+    
+@router.get("/getLastWorkplaceCheckoutShift")
+async def get_last_checkout_shift(
+    params: CashShiftWorkplaceLastRequest = Depends(),
+) -> CashShiftWithReceiptsResponse:
+    checkout_shift: CashShiftWithReceiptsResponse | None = (
+        await CheckoutShiftDAO.get_last_checkout_shift(
+            {**params.model_dump(exclude_none=True), "closed": False}
         )
     )
 

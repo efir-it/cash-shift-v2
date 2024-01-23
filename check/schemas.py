@@ -122,7 +122,7 @@ class ReceiptUpdateRequestBody(BaseReceipt):
     positions: list[PositionCreateRequest] = []
 
 
-class ReceiptsRequest(BaseReceipt):
+class ReceiptsRequest(BaseRequest):
     store_id: uuid.UUID | None = Field(alias="storeId", default=None)
     cash_shift_id: uuid.UUID | None = Field(alias="cashShiftId", default=None)
     time_start: datetime | None = Field(alias="timeStart", default=None)
