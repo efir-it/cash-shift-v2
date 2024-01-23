@@ -29,8 +29,8 @@ router = APIRouter(prefix="/checkoutReceipt", tags=["Чеки"])
 
 
 @router.get("/getCashReceipts")
-async def get_checks(params: ReceiptsRequest = Depends()) -> ReceiptsResponse:
-    receipts: list[ReceiptResponse] = await CheckDAO.get_all_receipts(
+async def get_checks(params: ReceiptsRequest = Depends()) -> ReceiptWithPositionsResponse:
+    receipts: list[ReceiptWithPositionsResponse] = await CheckDAO.get_all_receipts(
         params.model_dump(exclude_none=True)
     )
 

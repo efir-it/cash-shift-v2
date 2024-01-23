@@ -41,7 +41,9 @@ class CheckDAO(BaseDAO):
     #     return [ReceiptResponse(**check.__dict__) for check in checks]
 
     @classmethod
-    async def get_all_receipts(cls, filter_by: dict = {}) -> list[ReceiptResponse]:
+    async def get_all_receipts(
+        cls, filter_by: dict = {}
+    ) -> list[ReceiptWithPositionsResponse]:
         time_start = filter_by.pop("time_start", None)
         time_end = filter_by.pop("time_end", None)
         count = filter_by.pop("count", None)
@@ -64,7 +66,17 @@ class CheckDAO(BaseDAO):
             ]
             receipts.sort(key=lambda check: check.date, reverse=True)
 
-            return [ReceiptResponse(**receipt.__dict__) for receipt in receipts[:count]]
+            return [
+                ReceiptWithPositionsResponse(
+                    positions=(
+                        await PositionCheckDAO.get_all_positions(
+                            {"check_id": receipt.id}
+                        )
+                    ),
+                    **receipt.__dict__,
+                )
+                for receipt in receipts[:count]
+            ]
 
     @classmethod
     async def create_receipt(

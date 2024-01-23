@@ -45,7 +45,7 @@ class CashShiftResponse(BaseCashShift):
 
 
 class CashShiftWithReceiptsResponse(CashShiftResponse):
-    receipts: list[ReceiptResponse] = Field(alias="cashReceipts")
+    receipts: list[ReceiptWithPositionsResponse] = Field(alias="cashReceipts")
 
 
 class CashShiftsResponse(BaseCashShift):
