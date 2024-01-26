@@ -25,6 +25,10 @@ class CheckoutShiftNotFound(DetailedHTTPException):
     STATUS_CODE = status.HTTP_404_NOT_FOUND
     DETAIL = "Checkout Shift not found"
 
+class CheckoutShiftAlreadyOpen(DetailedHTTPException):
+    STATUS_CODE = status.HTTP_409_CONFLICT
+    DETAIL = "Checkout Shift already open on this workplace"
+
 
 class BadRequest(DetailedHTTPException):
     STATUS_CODE = status.HTTP_400_BAD_REQUEST

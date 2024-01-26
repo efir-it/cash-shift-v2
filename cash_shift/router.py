@@ -13,7 +13,7 @@ from cash_shift.schemas import (
     CashShiftsResponse,
     CashShiftWithReceiptsResponse,
 )
-from exceptions import CheckoutShiftNotFound
+from exceptions import CheckoutShiftAlreadyOpen, CheckoutShiftNotFound
 
 router = APIRouter(prefix="/checkoutShift", tags=["Кассовые смены"])
 
@@ -55,24 +55,7 @@ async def get_checkout_shift(
         raise CheckoutShiftNotFound
 
 
-@router.get("/getLastUserCheckoutShift")
-async def get_last_checkout_shift(
-    params: CashShiftUserLastRequest = Depends(),
-) -> CashShiftWithReceiptsResponse:
-    checkout_shift: CashShiftWithReceiptsResponse | None = (
-        await CheckoutShiftDAO.get_last_checkout_shift(
-            {**params.model_dump(exclude_none=True), **params.model_dump(include="worker_id"), "closed": False}
-        )
-    )
-
-    if checkout_shift is not None:
-        return JSONResponse(
-            content=checkout_shift.model_dump(by_alias=True), status_code=200
-        )
-    else:
-        raise CheckoutShiftNotFound
-    
-@router.get("/getLastWorkplaceCheckoutShift")
+@router.get("/getLastCheckoutShift")
 async def get_last_checkout_shift(
     params: CashShiftWorkplaceLastRequest = Depends(),
 ) -> CashShiftWithReceiptsResponse:
@@ -88,24 +71,47 @@ async def get_last_checkout_shift(
         )
     else:
         raise CheckoutShiftNotFound
+    
+# @router.get("/getLastWorkplaceCheckoutShift")
+# async def get_last_checkout_shift(
+#     params: CashShiftWorkplaceLastRequest = Depends(),
+# ) -> CashShiftWithReceiptsResponse:
+#     checkout_shift: CashShiftWithReceiptsResponse | None = (
+#         await CheckoutShiftDAO.get_last_checkout_shift(
+#             {**params.model_dump(exclude_none=True), "closed": False}
+#         )
+#     )
+
+#     if checkout_shift is not None:
+#         return JSONResponse(
+#             content=checkout_shift.model_dump(by_alias=True), status_code=200
+#         )
+#     else:
+#         raise CheckoutShiftNotFound
 
 
 @router.post("/openCheckoutShift")
 async def open_checkout_shift(
     body: CashShiftOpenRequestBody, params: CashShiftOpenRequest = Depends()
 ) -> CashShiftWithReceiptsResponse:
-    checkout_shift: CashShiftWithReceiptsResponse = (
-        await CheckoutShiftDAO.create_checkout_shift(
-            {
-                **params.model_dump(exclude_none=True),
-                **body.model_dump(exclude_none=True),
-            }
+    
+    open_checkout_shift = await CheckoutShiftDAO.get_last_checkout_shift({"workplace_id": body.workplace_id, "closed": False})
+    
+    if open_checkout_shift is None:
+        checkout_shift: CashShiftWithReceiptsResponse = (
+            await CheckoutShiftDAO.create_checkout_shift(
+                {
+                    **params.model_dump(exclude_none=True),
+                    **body.model_dump(exclude_none=True),
+                }
+            )
         )
-    )
 
-    return JSONResponse(
-        content=checkout_shift.model_dump(by_alias=True), status_code=200
-    )
+        return JSONResponse(
+            content=checkout_shift.model_dump(by_alias=True), status_code=200
+        )
+    else: 
+        raise CheckoutShiftAlreadyOpen
 
 
 @router.patch("/closeCheckoutShift")
