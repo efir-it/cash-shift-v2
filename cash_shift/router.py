@@ -120,7 +120,7 @@ async def close_checkout_shift(
 ) -> CashShiftWithReceiptsResponse:
     checkout_shift: CashShiftWithReceiptsResponse | None = (
         await CheckoutShiftDAO.update_checkout_shift(
-            params.model_dump(exclude_none=True),
+            params.model_dump(exclude_none=True, exclude=["workerId"]),
             {"closed": True},
         )
     )
