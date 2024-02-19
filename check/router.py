@@ -119,7 +119,7 @@ async def close_check(
                         receipt.date, "%Y-%m-%dT%H:%M:%S"
                     )
                     + "+00:00",
-                    "workerId": str(checkout_shift.worker_id),
+                    "workerId": str(checkout_shift.worker_id) if checkout_shift.worker_id else str(receipt.owner_id),
                     "positions": [
                         {"productId": str(position.id), "productCount": position.count}
                         for position in receipt.positions
