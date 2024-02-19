@@ -121,7 +121,7 @@ async def close_check(
                     + "+00:00",
                     "workerId": str(checkout_shift.worker_id) if checkout_shift.worker_id else str(receipt.owner_id),
                     "positions": [
-                        {"productId": str(position.id), "productCount": position.count}
+                        {"productId": str(position.product_id), "productCount": position.count}
                         for position in receipt.positions
                     ],
                 }
