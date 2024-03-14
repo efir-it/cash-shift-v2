@@ -63,11 +63,15 @@ class CheckoutShiftDAO(BaseDAO):
         ]
 
     @classmethod
-    async def create_checkout_shift(
-        cls, data: dict = {}
-    ) -> Optional[CashShiftWithReceiptsResponse]:
+    async def create_checkout_shift(cls, data: dict = {}) -> Optional[CashShiftWithReceiptsResponse]:
+        # Преобразование типа данных number в int, если он представлен
+        last_checkout_shift = await cls.get_last_checkout_shift()
+        # При сложении словарей числа переводятся в строки, поэтому приравниваем к числу, данный параметр не передан,
+        # получаем последнюю смену и к ее номеру прибавляем +1
+        number = int(data.get("number")) if "number" in data else last_checkout_shift.__dict__.get("number") + 1
+
         checkout_shift: CashShift = await cls.add(
-            {**data, "date": datetime.datetime.utcnow()}
+            {**data, "number": number, "date": datetime.datetime.utcnow()}
         )
 
         return (

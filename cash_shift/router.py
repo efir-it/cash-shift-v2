@@ -96,7 +96,7 @@ async def open_checkout_shift(
 ) -> CashShiftWithReceiptsResponse:
     
     open_checkout_shift = await CheckoutShiftDAO.get_last_checkout_shift({"workplace_id": body.workplace_id, "closed": False})
-    
+
     if open_checkout_shift is None:
         checkout_shift: CashShiftWithReceiptsResponse = (
             await CheckoutShiftDAO.create_checkout_shift(
