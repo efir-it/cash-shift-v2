@@ -14,7 +14,7 @@ class CashShift(Base):
     __tablename__ = "cash_shifts"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    number: Mapped[int] = mapped_column(nullable=True, unique=True)
+    number: Mapped[int] = mapped_column(nullable=True)
     date: Mapped[datetime] = mapped_column(nullable=False)
     organization_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     store_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
