@@ -18,7 +18,6 @@ class BaseCashShift(BaseModel):
     @field_serializer(
         "id",
         "owner_id",
-        "number",
         "worker_id",
         "organization_id",
         "store_id",
@@ -87,5 +86,5 @@ class CashShiftOpenRequest(BaseRequest):
 class CashShiftOpenRequestBody(BaseCashShift):
     store_id: uuid.UUID = Field(alias="storeId")
     workplace_id: uuid.UUID = Field(alias="workplaceId")
-    number: int | None = Field(alias="cashRegistrId", default=None)
+    number: int | None = Field(default=None)
     cash_registr_id: uuid.UUID | None = Field(alias="cashRegistrId", default=None)
