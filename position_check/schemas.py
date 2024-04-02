@@ -13,6 +13,9 @@ class PositionCheckSchema(BaseModel):
     position: int
     owner_id: uuid.UUID
     check_id: uuid.UUID
+    price_may_change_in_cash_receipt: bool
+    price_min_in_cash_receipt: int
+    price_max_in_cash_receipt: int
 
 
 class BasePosition(BaseModel):
