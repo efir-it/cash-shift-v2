@@ -20,7 +20,7 @@ class PositionCheck(Base):
     price: Mapped[int] = mapped_column(nullable=False, default=0)
     position: Mapped[int] = mapped_column(nullable=False)
     owner_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
-    price_may_change_in_cash_receipt: Mapped[bool] = mapped_column(nullable=False)
+    price_may_change_in_cash_receipt: Mapped[bool] = mapped_column(nullable=False, default=False)
     price_min_in_cash_receipt: Mapped[int] = mapped_column(nullable=True)
     price_max_in_cash_receipt: Mapped[int] = mapped_column(nullable=True)
 
