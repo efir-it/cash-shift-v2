@@ -95,8 +95,7 @@ class CheckDAO(BaseDAO):
 
             receipt = await session.execute(query)
             receipt = receipt.scalar()
-            pprint(filter_by)
-            pprint(receipt)
+
             return [
                 ReceiptWithPositionsResponse(
                     positions=(
@@ -118,7 +117,7 @@ class CheckDAO(BaseDAO):
             "organization_id": data.get('organization_id'),
             "store_id": data.get('store_id')
             })
-        pprint(last_receipt)
+
         number_last_receipt = int(last_receipt[0].number)
         number = str(data.get("number", number_last_receipt + 1 if number_last_receipt else 1))
         
@@ -173,15 +172,15 @@ class CheckDAO(BaseDAO):
         receipt: Receipt = await cls.update(
             filter_by, {**data, "date": datetime.datetime.utcnow()}
         )
-        
+
         if positions:
-            await PositionCheckDAO.delete({"check_id": receipt[0].id})
+            await PositionCheckDAO.delete({"check_id": filter_by.get('id')})
             for position_num, position in enumerate(positions):
                 await PositionCheckDAO.add(
                     {
                         **position,
-                        "owner_id": receipt[0].owner_id,
-                        "check_id": receipt[0].id,
+                        "owner_id": filter_by.get('owner_id'),
+                        "check_id": filter_by.get('id'),
                         "position": position_num + 1,
                     }
                 )
@@ -189,7 +188,7 @@ class CheckDAO(BaseDAO):
         return (
             ReceiptWithPositionsResponse(
                 positions=await PositionCheckDAO.get_all_positions(
-                    {"check_id": receipt[0].id}
+                    {"check_id": filter_by.get('id')}
                 ),
                 **receipt[0].__dict__,
             )
