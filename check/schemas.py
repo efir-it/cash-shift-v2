@@ -2,7 +2,7 @@ import enum
 import json
 import uuid
 from datetime import datetime
-
+from typing import Annotated, Optional
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 from position_check.schemas import PositionCreateRequest, PositionResponse
@@ -65,8 +65,8 @@ class ReceiptResponse(BaseReceipt):
     store_id: uuid.UUID = Field(alias="storeId")
     cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
     reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
-    number: str = Field(alias="cashRegisterCheckNumber")
-    number_fiscal_document: str = Field(alias="fiscalDocumentNumber")
+    number: Optional[str] = Field(alias="cashRegisterCheckNumber", default=None)
+    number_fiscal_document: Optional[str] = Field(alias="fiscalDocumentNumber", default=None)
     date: datetime
     amount: int = Field(alias="sum")
     type_operation: TypeOperation = Field(alias="typeOperation")
@@ -95,13 +95,16 @@ class ReceiptRequest(BaseRequest):
 class ReceiptCreateRequest(BaseRequest):
     store_id: uuid.UUID = Field(alias="storeId")
     cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
-    # worker_id: uuid.UUID = Field(alias="workerId", default=None)
 
+class ReceiptUpdateRequest(BaseRequest):
+    store_id: uuid.UUID = Field(alias="storeId")
+    cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
+    id: uuid.UUID = Field(alias="cashReceiptId")
 
 class ReceiptCreateRequestBody(BaseReceipt):
     reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
-    number: str = Field(alias="cashRegisterCheckNumber")
-    number_fiscal_document: str = Field(alias="fiscalDocumentNumber")
+    number: str | None = Field(alias="cashRegisterCheckNumber", default=None)
+    number_fiscal_document: Optional[str] | None = Field(alias="fiscalDocumentNumber", default=None)
     amount: int = Field(alias="sum")
     type_operation: TypeOperation = Field(alias="typeOperation")
     type_payment: TypePayment = Field(alias="typePayment")
@@ -112,8 +115,8 @@ class ReceiptCreateRequestBody(BaseReceipt):
 
 class ReceiptUpdateRequestBody(BaseReceipt):
     reason_id: uuid.UUID = Field(alias="reasonId", default=None)
-    number: str = Field(alias="cashRegisterCheckNumber", default=None)
-    number_fiscal_document: str = Field(alias="fiscalDocumentNumber", default=None)
+    number: str | None = Field(alias="cashRegisterCheckNumber", default=None)
+    number_fiscal_document: str | None = Field(alias="fiscalDocumentNumber", default=None)
     amount: int = Field(alias="sum", default=None)
     type_operation: TypeOperation = Field(alias="typeOperation", default=None)
     type_payment: TypePayment = Field(alias="typePayment", default=None)
@@ -129,3 +132,8 @@ class ReceiptsRequest(BaseRequest):
     time_end: datetime | None = Field(alias="timeEnd", default=None)
     check_status: ReceiptStatus | None = Field(default=None, alias="status")
     count: int | None = Field(default=None)
+
+
+class ReceiptsLastRequest(BaseRequest):
+    store_id: uuid.UUID | None = Field(alias="storeId", default=None)
+    cash_shift_id: uuid.UUID | None = Field(alias="cashShiftId", default=None)

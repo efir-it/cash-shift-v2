@@ -14,6 +14,7 @@ from check.schemas import (
     ReceiptCreateRequestBody,
     ReceiptRequest,
     ReceiptResponse,
+    ReceiptUpdateRequest,
     ReceiptsRequest,
     ReceiptsResponse,
     ReceiptStatus,
@@ -72,7 +73,7 @@ async def add_check(
 @router.patch("/updateCashReceipt")
 async def update_check(
     body: ReceiptUpdateRequestBody,
-    params: ReceiptCreateRequest = Depends(),
+    params: ReceiptUpdateRequest = Depends(),
 ) -> ReceiptWithPositionsResponse:
     receipt: ReceiptWithPositionsResponse | None = await CheckDAO.update_receipt(
         params.model_dump(exclude_none=True), {**body.model_dump(exclude_none=True)}

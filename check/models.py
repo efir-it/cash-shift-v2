@@ -20,9 +20,9 @@ class Receipt(Base):
     store_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
 
     date: Mapped[datetime] = mapped_column(nullable=False)
-    number: Mapped[str] = mapped_column(nullable=False)
+    number: Mapped[str] = mapped_column(nullable=True)
     amount: Mapped[int] = mapped_column(nullable=False, default=0)
-    number_fiscal_document: Mapped[str] = mapped_column(nullable=False)
+    number_fiscal_document: Mapped[str] = mapped_column(nullable=True)
     reason_id: Mapped[uuid.UUID] = mapped_column(nullable=True)
 
     cash_shift_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cash_shifts.id"))
