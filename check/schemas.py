@@ -95,11 +95,14 @@ class ReceiptRequest(BaseRequest):
 class ReceiptCreateRequest(BaseRequest):
     store_id: uuid.UUID = Field(alias="storeId")
     cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
+    # workplace_id: uuid.UUID = Field(alias="workplaceId")
+
 
 class ReceiptUpdateRequest(BaseRequest):
     store_id: uuid.UUID = Field(alias="storeId")
     cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
     id: uuid.UUID = Field(alias="cashReceiptId")
+
 
 class ReceiptCreateRequestBody(BaseReceipt):
     reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)

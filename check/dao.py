@@ -95,7 +95,8 @@ class CheckDAO(BaseDAO):
 
             receipt = await session.execute(query)
             receipt = receipt.scalar()
-
+            pprint(filter_by)
+            pprint(receipt)
             return [
                 ReceiptWithPositionsResponse(
                     positions=(
@@ -115,10 +116,9 @@ class CheckDAO(BaseDAO):
         last_receipt: ReceiptWithPositionsResponse = await cls.get_last_receipts(
             {"owner_id": data.get('owner_id'),
             "organization_id": data.get('organization_id'),
-            "store_id": data.get('store_id'),
-            "cash_shift_id": data.get('cash_shift_id')
+            "store_id": data.get('store_id')
             })
-
+        pprint(last_receipt)
         number_last_receipt = int(last_receipt[0].number)
         number = str(data.get("number", number_last_receipt + 1 if number_last_receipt else 1))
         
@@ -126,7 +126,6 @@ class CheckDAO(BaseDAO):
             {
                 **data,
                 "number": number,
-                # "reasonId": data.get("reasonId"),
                 "date": datetime.datetime.utcnow(),
                 "check_status": ReceiptStatus.CREATED.value,
             }
