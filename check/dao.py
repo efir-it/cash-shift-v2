@@ -96,7 +96,7 @@ class CheckDAO(BaseDAO):
             receipt = await session.execute(query)
             receipt = receipt.scalar()
 
-            return [
+            return (
                 ReceiptWithPositionsResponse(
                     positions=(
                         await PositionCheckDAO.get_all_positions(
@@ -105,7 +105,9 @@ class CheckDAO(BaseDAO):
                     ),
                     **receipt.__dict__,
                 )
-            ]
+                if receipt is not None
+                else None
+            )
 
     @classmethod
     async def create_receipt(
@@ -125,8 +127,8 @@ class CheckDAO(BaseDAO):
                  }
             )
 
-        number_last_receipt = int(last_receipt[0].number)
-        number = str(data.get("number", number_last_receipt + 1 if number_last_receipt else 1))
+        # number_last_receipt = int(last_receipt.number)
+        number = str(data.get("number", int(last_receipt.number) + 1 if last_receipt is not None else 1))
         # pprint(sell_receipt)
 
         receipt: Receipt = await cls.add(
