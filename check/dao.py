@@ -114,17 +114,26 @@ class CheckDAO(BaseDAO):
         positions = data.pop("positions", [])
         last_receipt: ReceiptWithPositionsResponse = await cls.get_last_receipts(
             {"owner_id": data.get('owner_id'),
-            "organization_id": data.get('organization_id'),
-            "store_id": data.get('store_id')
+             "organization_id": data.get('organization_id'),
+             "store_id": data.get('store_id')
             })
+        if data.get("type_operation") == 2:
+            sell_receipt: ReceiptWithPositionsResponse = await cls.get_one_receipt(
+                {"owner_id": data.get('owner_id'),
+                 "organization_id": data.get('organization_id'),
+                 "id": data.get('reason_id')
+                 }
+            )
 
         number_last_receipt = int(last_receipt[0].number)
         number = str(data.get("number", number_last_receipt + 1 if number_last_receipt else 1))
-        
+        # pprint(sell_receipt)
+
         receipt: Receipt = await cls.add(
             {
                 **data,
                 "number": number,
+                "reasonCheckName": sell_receipt.number if data.get("type_operation") == 2 else None,
                 "date": datetime.datetime.utcnow(),
                 "check_status": ReceiptStatus.CREATED.value,
             }
@@ -148,7 +157,8 @@ class CheckDAO(BaseDAO):
                 "id": data.get("reason_id")
             }
             body_params = {
-                "reason_id": receipt.__dict__['id']
+                "reason_id": receipt.__dict__['id'],
+                "reasonCheckName": receipt.__dict__['number']
             }
             await cls.update_receipt(query_params, body_params)
 

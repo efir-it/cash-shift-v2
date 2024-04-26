@@ -18,7 +18,7 @@ class Receipt(Base):
     owner_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     organization_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     store_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
-
+    reasonCheckName: Mapped[str] = mapped_column(default='', nullable=True)
     date: Mapped[datetime] = mapped_column(nullable=False)
     number: Mapped[str] = mapped_column(nullable=True)
     amount: Mapped[int] = mapped_column(nullable=False, default=0)

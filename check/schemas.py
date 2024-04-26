@@ -67,6 +67,7 @@ class ReceiptResponse(BaseReceipt):
     reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
     number: Optional[str] = Field(alias="cashRegisterCheckNumber", default=None)
     number_fiscal_document: Optional[str] = Field(alias="fiscalDocumentNumber", default=None)
+    reasonCheckName: Optional[str] = Field(alias="reasonCheckName", default='')
     date: datetime
     amount: int = Field(alias="sum")
     type_operation: TypeOperation = Field(alias="typeOperation")
