@@ -182,7 +182,7 @@ class CheckDAO(BaseDAO):
         positions = data.pop("positions", None)
 
         receipt: Receipt = await cls.update(
-            filter_by, {**data, "date": datetime.datetime.utcnow()}
+            filter_by, {**data}
         )
 
         if positions:
