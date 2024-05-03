@@ -24,7 +24,8 @@ class Receipt(Base):
     amount: Mapped[int] = mapped_column(nullable=False, default=0)
     number_fiscal_document: Mapped[str] = mapped_column(nullable=True)
     reason_id: Mapped[uuid.UUID] = mapped_column(nullable=True)
-
+    workplace_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    
     cash_shift_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("cash_shifts.id"))
     cash_shift: Mapped["CashShift"] = relationship(back_populates="checks")
 

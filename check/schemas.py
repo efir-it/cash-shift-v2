@@ -63,6 +63,8 @@ class ReceiptResponse(BaseReceipt):
     id: uuid.UUID
     owner_id: uuid.UUID = Field(alias="ownerId")
     store_id: uuid.UUID = Field(alias="storeId")
+    workplace_id: uuid.UUID = Field(alias="workplaceId")
+    organization_id: uuid.UUID = Field(alias="organizationId")
     cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
     reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
     number: Optional[str] = Field(alias="cashRegisterCheckNumber", default=None)
@@ -96,17 +98,19 @@ class ReceiptRequest(BaseRequest):
 class ReceiptCreateRequest(BaseRequest):
     store_id: uuid.UUID = Field(alias="storeId")
     cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
-    # workplace_id: uuid.UUID = Field(alias="workplaceId")
+    workplace_id: uuid.UUID = Field(alias="workplaceId")
 
 
 class ReceiptUpdateRequest(BaseRequest):
     store_id: uuid.UUID = Field(alias="storeId")
+    workplace_id: uuid.UUID = Field(alias="workplaceId")
     cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
     id: uuid.UUID = Field(alias="cashReceiptId")
 
 
 class ReceiptCreateRequestBody(BaseReceipt):
     reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
+    # workplace_id: uuid.UUID = Field(alias="workplaceId")
     number: str | None = Field(alias="cashRegisterCheckNumber", default=None)
     number_fiscal_document: Optional[str] | None = Field(alias="fiscalDocumentNumber", default=None)
     amount: int = Field(alias="sum")
@@ -131,6 +135,7 @@ class ReceiptUpdateRequestBody(BaseReceipt):
 
 class ReceiptsRequest(BaseRequest):
     store_id: uuid.UUID | None = Field(alias="storeId", default=None)
+    workplace_id: uuid.UUID | None = Field(alias="workplaceId", default=None)
     cash_shift_id: uuid.UUID | None = Field(alias="cashShiftId", default=None)
     time_start: datetime | None = Field(alias="timeStart", default=None)
     time_end: datetime | None = Field(alias="timeEnd", default=None)
@@ -139,5 +144,6 @@ class ReceiptsRequest(BaseRequest):
 
 
 class ReceiptsLastRequest(BaseRequest):
-    store_id: uuid.UUID | None = Field(alias="storeId", default=None)
-    cash_shift_id: uuid.UUID | None = Field(alias="cashShiftId", default=None)
+    store_id: uuid.UUID | None = Field(alias="storeId")
+    cash_shift_id: uuid.UUID | None = Field(alias="cashShiftId")
+    workplace_id: uuid.UUID | None = Field(alias="workplaceId")

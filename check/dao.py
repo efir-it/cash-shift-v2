@@ -117,7 +117,8 @@ class CheckDAO(BaseDAO):
         last_receipt: ReceiptWithPositionsResponse = await cls.get_last_receipts(
             {"owner_id": data.get('owner_id'),
              "organization_id": data.get('organization_id'),
-             "store_id": data.get('store_id')
+             "store_id": data.get('store_id'),
+             "workplace_id": data.get('workplace_id')
             })
         if data.get("type_operation") == 2:
             sell_receipt: ReceiptWithPositionsResponse = await cls.get_one_receipt(
