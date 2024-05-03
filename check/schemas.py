@@ -36,7 +36,7 @@ class BaseReceipt(BaseModel):
     )
 
     @field_serializer(
-        "id", "store_id", "owner_id", "cash_shift_id", "reason_id", check_fields=False
+        "id", "store_id", "owner_id", "cash_shift_id", "reason_id", "workplace_id", "organization_id", check_fields=False
     )
     def uuid_to_str(uuid: uuid.UUID):
         return str(uuid) if uuid else None
@@ -144,6 +144,6 @@ class ReceiptsRequest(BaseRequest):
 
 
 class ReceiptsLastRequest(BaseRequest):
-    store_id: uuid.UUID | None = Field(alias="storeId")
-    cash_shift_id: uuid.UUID | None = Field(alias="cashShiftId")
-    workplace_id: uuid.UUID | None = Field(alias="workplaceId")
+    store_id: uuid.UUID = Field(alias="storeId")
+    cash_shift_id: uuid.UUID = Field(alias="cashShiftId")
+    workplace_id: uuid.UUID = Field(alias="workplaceId")

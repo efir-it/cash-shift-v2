@@ -82,7 +82,7 @@ class CheckDAO(BaseDAO):
     async def get_last_receipts(
             cls, filter_by: dict = {}
     ) -> Optional[ReceiptWithPositionsResponse]:
-
+        # print(filter_by)
         async with async_session_maker() as session:
             query: Select = (
                 select(cls.model)
@@ -95,7 +95,7 @@ class CheckDAO(BaseDAO):
 
             receipt = await session.execute(query)
             receipt = receipt.scalar()
-
+            # print(receipt)
             return (
                 ReceiptWithPositionsResponse(
                     positions=(
@@ -114,6 +114,9 @@ class CheckDAO(BaseDAO):
         cls, data: dict = {}
     ) -> Optional[ReceiptWithPositionsResponse]:
         positions = data.pop("positions", [])
+
+        # print(data.get('workplace_id'))
+        # print(data.get('organization_id'))
         last_receipt: ReceiptWithPositionsResponse = await cls.get_last_receipts(
             {"owner_id": data.get('owner_id'),
              "organization_id": data.get('organization_id'),
@@ -157,6 +160,7 @@ class CheckDAO(BaseDAO):
                 "organization_id": data.get('organization_id'),
                 "store_id": data.get('store_id'),
                 "cash_shift_id": data.get('cash_shift_id'),
+                "workplace_id": data.get('workplace_id'),
                 "id": data.get("reason_id")
             }
             body_params = {
