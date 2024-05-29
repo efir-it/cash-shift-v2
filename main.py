@@ -1,12 +1,16 @@
 import asyncio
-
-from fastapi import APIRouter, FastAPI
+import time
+from pprint import pprint
+# from urllib.request import Request
+import json
+from fastapi import APIRouter, FastAPI, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from cash_shift.router import router as router_cash_shift
 from check.router import router as router_check
 from config import settings
 from event.base_consumer import Consumer
+from logger import logger
 
 
 class App(FastAPI):
@@ -36,6 +40,69 @@ app.add_middleware(
         "Authorization",
     ],
 )
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+
+    start_time = time.time()
+
+    body = await request.body()
+    if body:
+        body_text = body.decode('utf-8')
+        try:
+            body_json = json.loads(body_text)
+        except json.JSONDecodeError:
+            body_json = body_text
+        request._body = body
+
+    async def receive_body():
+        return {'type': 'http.request', 'body': body}
+
+    request = Request(request.scope, receive=receive_body)
+
+    response = await call_next(request)
+
+    response_body = b""
+    async for chunk in response.body_iterator:
+        response_body += chunk
+
+    response = Response(
+        content=response_body,
+        status_code=response.status_code,
+        headers=dict(response.headers),
+        media_type=response.media_type
+    )
+
+    process_time = time.time() - start_time
+
+    status_code = response.status_code
+    url = str(request.url)
+    ip_address = request.client.host
+    method = request.method
+
+    if status_code == 200:
+        logger.info(
+            f"|| Status_code: {status_code}"
+            f"|| URL: {url}"
+            f"|| IP: {ip_address}"
+            f"|| Method: {method}"
+            f"|| Body: {body_json}"
+            f"|| Response: {response_body.decode('utf-8')}",
+            extra={"process_time": round(process_time, 2)}
+        )
+    else:
+        logger.error(
+            f"|| Status_code: {status_code}"
+            f"|| URL: {url}"
+            f"|| IP: {ip_address}"
+            f"|| Method: {method}"
+            f"|| Body: {body_json}"
+            f"|| Response: {response_body.decode('utf-8')}"
+            f"|| Query_params: {dict(request.query_params)}",
+            extra={"process_time": round(process_time, 2)}
+        )
+
+    return response
 
 
 @app.on_event("startup")
