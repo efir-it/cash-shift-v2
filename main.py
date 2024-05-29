@@ -47,6 +47,7 @@ async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
 
     body = await request.body()
+    body_json = None
     if body:
         body_text = body.decode('utf-8')
         try:
