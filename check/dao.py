@@ -12,7 +12,7 @@ from database import async_session_maker
 from position_check.dao import PositionCheckDAO
 from position_check.models import PositionCheck
 from position_check.schemas import PositionResponse
-
+from pprint import pprint
 
 class CheckDAO(BaseDAO):
     model = Receipt
@@ -79,14 +79,67 @@ class CheckDAO(BaseDAO):
             ]
 
     @classmethod
+    async def get_last_receipts(
+            cls, filter_by: dict = {}
+    ) -> Optional[ReceiptWithPositionsResponse]:
+        # print(filter_by)
+        async with async_session_maker() as session:
+            query: Select = (
+                select(cls.model)
+                .filter_by(
+                    **filter_by,
+                )
+                .order_by(Receipt.number.desc())
+                .limit(1)
+            )
+
+            receipt = await session.execute(query)
+            receipt = receipt.scalar()
+            # print(receipt)
+            return (
+                ReceiptWithPositionsResponse(
+                    positions=(
+                        await PositionCheckDAO.get_all_positions(
+                            {"check_id": receipt.id}
+                        )
+                    ),
+                    **receipt.__dict__,
+                )
+                if receipt is not None
+                else None
+            )
+
+    @classmethod
     async def create_receipt(
         cls, data: dict = {}
     ) -> Optional[ReceiptWithPositionsResponse]:
         positions = data.pop("positions", [])
 
+        # print(data.get('workplace_id'))
+        # print(data.get('organization_id'))
+        last_receipt: ReceiptWithPositionsResponse = await cls.get_last_receipts(
+            {"owner_id": data.get('owner_id'),
+             "organization_id": data.get('organization_id'),
+             "store_id": data.get('store_id'),
+             "workplace_id": data.get('workplace_id')
+            })
+        if data.get("type_operation") == 2:
+            sell_receipt: ReceiptWithPositionsResponse = await cls.get_one_receipt(
+                {"owner_id": data.get('owner_id'),
+                 "organization_id": data.get('organization_id'),
+                 "id": data.get('reason_id')
+                 }
+            )
+
+        # number_last_receipt = int(last_receipt.number)
+        number = str(data.get("number", int(last_receipt.number) + 1 if last_receipt is not None else 1))
+        # pprint(sell_receipt)
+
         receipt: Receipt = await cls.add(
             {
                 **data,
+                "number": number,
+                "reasonCheckName": sell_receipt.number if data.get("type_operation") == 2 else None,
                 "date": datetime.datetime.utcnow(),
                 "check_status": ReceiptStatus.CREATED.value,
             }
@@ -100,6 +153,22 @@ class CheckDAO(BaseDAO):
                     "position": position_num + 1,
                 }
             )
+
+        if data.get("type_operation") == 2:
+            query_params = {
+                "owner_id": data.get('owner_id'),
+                "organization_id": data.get('organization_id'),
+                "store_id": data.get('store_id'),
+                "cash_shift_id": data.get('cash_shift_id'),
+                "workplace_id": data.get('workplace_id'),
+                "id": data.get("reason_id")
+            }
+            body_params = {
+                "reason_id": receipt.__dict__['id'],
+                "reasonCheckName": receipt.__dict__['number']
+            }
+            await cls.update_receipt(query_params, body_params)
+
         return (
             ReceiptWithPositionsResponse(
                 positions=await PositionCheckDAO.get_all_positions(
@@ -118,17 +187,17 @@ class CheckDAO(BaseDAO):
         positions = data.pop("positions", None)
 
         receipt: Receipt = await cls.update(
-            filter_by, {**data, "date": datetime.datetime.utcnow()}
+            filter_by, {**data}
         )
 
-        if positions is not None:
-            await PositionCheckDAO.delete({"check_id": filter_by["id"]})
+        if positions:
+            await PositionCheckDAO.delete({"check_id": filter_by.get('id')})
             for position_num, position in enumerate(positions):
                 await PositionCheckDAO.add(
                     {
                         **position,
-                        "owner_id": receipt.owner_id,
-                        "check_id": receipt.id,
+                        "owner_id": filter_by.get('owner_id'),
+                        "check_id": filter_by.get('id'),
                         "position": position_num + 1,
                     }
                 )
@@ -136,9 +205,9 @@ class CheckDAO(BaseDAO):
         return (
             ReceiptWithPositionsResponse(
                 positions=await PositionCheckDAO.get_all_positions(
-                    {"check_id": receipt.id}
+                    {"check_id": filter_by.get('id')}
                 ),
-                **receipt.__dict__,
+                **receipt[0].__dict__,
             )
             if receipt is not None
             else None

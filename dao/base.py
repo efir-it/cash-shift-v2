@@ -152,6 +152,7 @@ class BaseDAO:
                 .returning(cls.model)
             )
             result = await session.execute(query)
+
             await session.commit()
             return [row[0] for row in result.fetchall()]
 

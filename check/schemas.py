@@ -2,7 +2,7 @@ import enum
 import json
 import uuid
 from datetime import datetime
-
+from typing import Annotated, Optional
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 from position_check.schemas import PositionCreateRequest, PositionResponse
@@ -36,7 +36,7 @@ class BaseReceipt(BaseModel):
     )
 
     @field_serializer(
-        "id", "store_id", "owner_id", "cash_shift_id", "reason_id", check_fields=False
+        "id", "store_id", "owner_id", "cash_shift_id", "reason_id", "workplace_id", "organization_id", check_fields=False
     )
     def uuid_to_str(uuid: uuid.UUID):
         return str(uuid) if uuid else None
@@ -63,10 +63,13 @@ class ReceiptResponse(BaseReceipt):
     id: uuid.UUID
     owner_id: uuid.UUID = Field(alias="ownerId")
     store_id: uuid.UUID = Field(alias="storeId")
+    workplace_id: uuid.UUID = Field(alias="workplaceId")
+    organization_id: uuid.UUID = Field(alias="organizationId")
     cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
     reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
-    number: str = Field(alias="cashRegisterCheckNumber")
-    number_fiscal_document: str = Field(alias="fiscalDocumentNumber")
+    number: Optional[str] = Field(alias="cashRegisterCheckNumber", default=None)
+    number_fiscal_document: Optional[str] = Field(alias="fiscalDocumentNumber", default=None)
+    reasonCheckName: Optional[str] = Field(alias="reasonCheckName", default='')
     date: datetime
     amount: int = Field(alias="sum")
     type_operation: TypeOperation = Field(alias="typeOperation")
@@ -95,13 +98,21 @@ class ReceiptRequest(BaseRequest):
 class ReceiptCreateRequest(BaseRequest):
     store_id: uuid.UUID = Field(alias="storeId")
     cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
-    # worker_id: uuid.UUID = Field(alias="workerId", default=None)
+    workplace_id: uuid.UUID = Field(alias="workplaceId")
+
+
+class ReceiptUpdateRequest(BaseRequest):
+    store_id: uuid.UUID = Field(alias="storeId")
+    workplace_id: uuid.UUID = Field(alias="workplaceId")
+    cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
+    id: uuid.UUID = Field(alias="cashReceiptId")
 
 
 class ReceiptCreateRequestBody(BaseReceipt):
     reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
-    number: str = Field(alias="cashRegisterCheckNumber")
-    number_fiscal_document: str = Field(alias="fiscalDocumentNumber")
+    # workplace_id: uuid.UUID = Field(alias="workplaceId")
+    number: str | None = Field(alias="cashRegisterCheckNumber", default=None)
+    number_fiscal_document: Optional[str] | None = Field(alias="fiscalDocumentNumber", default=None)
     amount: int = Field(alias="sum")
     type_operation: TypeOperation = Field(alias="typeOperation")
     type_payment: TypePayment = Field(alias="typePayment")
@@ -112,8 +123,8 @@ class ReceiptCreateRequestBody(BaseReceipt):
 
 class ReceiptUpdateRequestBody(BaseReceipt):
     reason_id: uuid.UUID = Field(alias="reasonId", default=None)
-    number: str = Field(alias="cashRegisterCheckNumber", default=None)
-    number_fiscal_document: str = Field(alias="fiscalDocumentNumber", default=None)
+    number: str | None = Field(alias="cashRegisterCheckNumber", default=None)
+    number_fiscal_document: str | None = Field(alias="fiscalDocumentNumber", default=None)
     amount: int = Field(alias="sum", default=None)
     type_operation: TypeOperation = Field(alias="typeOperation", default=None)
     type_payment: TypePayment = Field(alias="typePayment", default=None)
@@ -124,8 +135,15 @@ class ReceiptUpdateRequestBody(BaseReceipt):
 
 class ReceiptsRequest(BaseRequest):
     store_id: uuid.UUID | None = Field(alias="storeId", default=None)
+    workplace_id: uuid.UUID | None = Field(alias="workplaceId", default=None)
     cash_shift_id: uuid.UUID | None = Field(alias="cashShiftId", default=None)
     time_start: datetime | None = Field(alias="timeStart", default=None)
     time_end: datetime | None = Field(alias="timeEnd", default=None)
     check_status: ReceiptStatus | None = Field(default=None, alias="status")
     count: int | None = Field(default=None)
+
+
+class ReceiptsLastRequest(BaseRequest):
+    store_id: uuid.UUID = Field(alias="storeId")
+    cash_shift_id: uuid.UUID = Field(alias="cashShiftId")
+    workplace_id: uuid.UUID = Field(alias="workplaceId")

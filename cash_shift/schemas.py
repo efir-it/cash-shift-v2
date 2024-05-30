@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import enum
 import json
-from typing import Annotated
+from typing import Annotated, Optional
 import uuid
 from datetime import datetime
 
@@ -35,13 +35,14 @@ class BaseCashShift(BaseModel):
 
 class CashShiftResponse(BaseCashShift):
     id: uuid.UUID
+    number: Optional[int]
     date: datetime
     organization_id: uuid.UUID = Field(alias="organizationId")
     owner_id: uuid.UUID = Field(alias="ownerId")
     store_id: uuid.UUID = Field(alias="storeId")
     workplace_id: uuid.UUID = Field(alias="workplaceId")
     worker_id: uuid.UUID | None = Field(alias="workerId", default=None)
-    cash_registr_id: uuid.UUID = Field(alias="cashRegistrId")
+    cash_registr_id: uuid.UUID | None = Field(alias="cashRegistrId", default=None)
     closed: bool
     hide: bool = Field(alias="hidden")
 
@@ -85,4 +86,5 @@ class CashShiftOpenRequest(BaseRequest):
 class CashShiftOpenRequestBody(BaseCashShift):
     store_id: uuid.UUID = Field(alias="storeId")
     workplace_id: uuid.UUID = Field(alias="workplaceId")
-    cash_registr_id: uuid.UUID = Field(alias="cashRegistrId")
+    number: int | None = Field(default=None)
+    cash_registr_id: uuid.UUID | None = Field(alias="cashRegistrId", default=None)
