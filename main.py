@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from cash_shift.router import router as router_cash_shift
 from check.router import router as router_check
+from position_check.router import router as router_position
 from config import settings
 from event.base_consumer import Consumer
 from logger import logger
@@ -23,6 +24,7 @@ app = App(title="Efirit CheckoutShift Module", version="0.2")
 cash_router = APIRouter(prefix="/checkoutShift")
 cash_router.include_router(router_cash_shift)
 cash_router.include_router(router_check)
+cash_router.include_router(router_position)
 
 app.include_router(cash_router)
 

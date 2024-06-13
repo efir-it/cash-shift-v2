@@ -153,7 +153,7 @@ class CheckDAO(BaseDAO):
                     "position": position_num + 1,
                 }
             )
-
+        # Если это чек возврата, то мы обновляем чек продажи reason_id равен id чека возврата и reasonCheckName равен номеру чека возврата
         if data.get("type_operation") == 2:
             query_params = {
                 "owner_id": data.get('owner_id'),

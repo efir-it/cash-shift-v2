@@ -41,3 +41,9 @@ class PositionCreateRequest(BasePosition):
     product_id: uuid.UUID = Field(alias="productId")
     count: int
     price: int
+
+
+class Check(BaseModel):
+    id: uuid.UUID
+
+

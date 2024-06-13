@@ -49,3 +49,5 @@ apiHost - http адрес API сервера
 
 - prodMove/salesCashReceipt => cashReceiptEvent
 - prodMove/returnCashReceipt => cashReceiptEvent
+
+uvicorn main:app --reload
