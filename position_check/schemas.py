@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
@@ -45,5 +46,18 @@ class PositionCreateRequest(BasePosition):
 
 class Check(BaseModel):
     id: uuid.UUID
+
+
+class PositionsChecksResponse(BasePosition):
+    id: uuid.UUID
+    product_id: uuid.UUID
+    count: int
+    price: int
+    position: int
+    owner_id: uuid.UUID
+    check_id: uuid.UUID
+    price_may_change_in_cash_receipt: bool
+    price_min_in_cash_receipt: Optional[int]
+    price_max_in_cash_receipt: Optional[int]
 
 

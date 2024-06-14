@@ -27,7 +27,7 @@ class PositionCheckDAO(BaseDAO):
     async def get_all_positions_by_ids(cls, filter_by: list = [uuid.UUID], ) -> list[PositionResponse]:
 
        async with async_session_maker() as session:
-            query: Select = select(cls.model).where(cls.model.id.in_(filter_by))
+            query: Select = select(cls.model).where(cls.model.check_id.in_(filter_by))
             result = await session.execute(query)
             return [row[0] for row in result.fetchall()]
         

@@ -6,21 +6,22 @@ from fastapi import APIRouter, Depends, Security
 from fastapi.responses import JSONResponse
 from exceptions import PermissionDenied, ReceiptNotFound
 from position_check.dao import PositionCheckDAO
-from position_check.schemas import PositionCheckSchema, Check
+from position_check.schemas import PositionsChecksResponse
 
 router = APIRouter(prefix="/positionCheck", tags=["Позиции чека"])
 
 
-@router.post("/getPositions", response_model=List[PositionCheckSchema])
+@router.post("/getPositions", response_model=List[PositionsChecksResponse])
 async def get_positions(
     body: List[uuid.UUID],
-) -> List[PositionCheckSchema]:
-    positions: List[PositionCheckSchema] = await PositionCheckDAO.get_all_positions_by_ids(body)
+) -> List[PositionsChecksResponse]:
+    positions: List[PositionsChecksResponse] = await PositionCheckDAO.get_all_positions_by_ids(body)
 
-    print([print(position) for position in positions])
-
+    if positions is None:
+        positions = []
+    return positions
     # if positions:
-    #     return JSONResponse(content=[position.model_dump(by_alias=True) for position in positions], status_code=200)
+    #     return JSONResponse(content=[position.model_dump(by_alias=True, exclude_unset=True) for position in positions], status_code=200)
     # else:
     #     raise ReceiptNotFound
 
