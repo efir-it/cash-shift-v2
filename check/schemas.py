@@ -104,7 +104,7 @@ class ReceiptCreateRequest(BaseRequest):
 class ReceiptUpdateRequest(BaseRequest):
     store_id: uuid.UUID = Field(alias="storeId")
     workplace_id: uuid.UUID = Field(alias="workplaceId")
-    cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
+    # cash_shift_id: uuid.UUID = Field(alias="checkoutShiftId")
     id: uuid.UUID = Field(alias="cashReceiptId")
 
 

@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from sqlalchemy import Select, and_, select, true
+from sqlalchemy import Select, and_, select, true, cast, INTEGER
 
 import position_check.utils as position_utils
 from check.models import Receipt
@@ -89,7 +89,7 @@ class CheckDAO(BaseDAO):
                 .filter_by(
                     **filter_by,
                 )
-                .order_by(Receipt.number.desc())
+                .order_by(cast(Receipt.number, INTEGER).desc())
                 .limit(1)
             )
 
@@ -123,17 +123,17 @@ class CheckDAO(BaseDAO):
              "store_id": data.get('store_id'),
              "workplace_id": data.get('workplace_id')
             })
+
         if data.get("type_operation") == 2:
             sell_receipt: ReceiptWithPositionsResponse = await cls.get_one_receipt(
-                {"owner_id": data.get('owner_id'),
-                 "organization_id": data.get('organization_id'),
-                 "id": data.get('reason_id')
-                 }
+                {
+                    "owner_id": data.get('owner_id'),
+                    "organization_id": data.get('organization_id'),
+                    "id": data.get('reason_id')
+                }
             )
-
         # number_last_receipt = int(last_receipt.number)
         number = str(data.get("number", int(last_receipt.number) + 1 if last_receipt is not None else 1))
-        # pprint(sell_receipt)
 
         receipt: Receipt = await cls.add(
             {
