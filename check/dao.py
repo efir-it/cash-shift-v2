@@ -201,6 +201,7 @@ class CheckDAO(BaseDAO):
                         "position": position_num + 1,
                     }
                 )
+        if len(receipt) == 0: return None
 
         return (
             ReceiptWithPositionsResponse(

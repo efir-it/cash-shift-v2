@@ -122,7 +122,7 @@ class ReceiptCreateRequestBody(BaseReceipt):
 
 
 class ReceiptUpdateRequestBody(BaseReceipt):
-    reason_id: uuid.UUID = Field(alias="reasonId", default=None)
+    reason_id: uuid.UUID | None = Field(alias="reasonId", default=None)
     number: str | None = Field(alias="cashRegisterCheckNumber", default=None)
     number_fiscal_document: str | None = Field(alias="fiscalDocumentNumber", default=None)
     amount: int = Field(alias="sum", default=None)
