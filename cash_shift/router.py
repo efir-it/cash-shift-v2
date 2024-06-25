@@ -1,3 +1,6 @@
+import datetime
+from pprint import pprint
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -12,6 +15,7 @@ from cash_shift.schemas import (
     CashShiftsRequest,
     CashShiftsResponse,
     CashShiftWithReceiptsResponse,
+    CashShiftClosedWithReceiptsResponse,
 )
 from exceptions import CheckoutShiftAlreadyOpen, CheckoutShiftNotFound
 
@@ -117,8 +121,9 @@ async def open_checkout_shift(
 @router.patch("/closeCheckoutShift")
 async def close_checkout_shift(
     params: CashShiftRequest = Depends(),
-) -> CashShiftWithReceiptsResponse:
-    checkout_shift: CashShiftWithReceiptsResponse | None = (
+) -> CashShiftClosedWithReceiptsResponse:
+
+    checkout_shift: CashShiftClosedWithReceiptsResponse | None = (
         await CheckoutShiftDAO.update_checkout_shift(
             params.model_dump(exclude_none=True, exclude=["workerId"]),
             {"closed": True},

@@ -84,6 +84,10 @@ class CheckoutShiftDAO(BaseDAO):
     async def update_checkout_shift(
         cls, filter_by: dict = {}, data: dict = {}
     ) -> Optional[CashShiftWithReceiptsResponse]:
+        data["closed_date"] = datetime.datetime.utcnow()
+        print(111111111111111111111111111111111111111)
+        print(type(data["closed_date"]))
+        print(111111111111111111111111111111111111111)
         checkout_shifts: list[CashShift] = await cls.update(filter_by, data)
 
         return (

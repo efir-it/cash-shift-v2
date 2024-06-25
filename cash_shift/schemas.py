@@ -31,12 +31,17 @@ class BaseCashShift(BaseModel):
     @field_serializer("date", check_fields=False)
     def datetime_to_str(date: datetime):
         return datetime.strftime(date, "%Y-%m-%dT%H:%M:%S")
+    
+    @field_serializer("closed_date", check_fields=False)
+    def datetime_to_str_close(closed_date: datetime):
+        return datetime.strftime(closed_date, "%Y-%m-%dT%H:%M:%S")
 
 
 class CashShiftResponse(BaseCashShift):
     id: uuid.UUID
     number: Optional[int]
     date: datetime
+    closed_date: Optional[datetime] = None
     organization_id: uuid.UUID = Field(alias="organizationId")
     owner_id: uuid.UUID = Field(alias="ownerId")
     store_id: uuid.UUID = Field(alias="storeId")
@@ -88,3 +93,22 @@ class CashShiftOpenRequestBody(BaseCashShift):
     workplace_id: uuid.UUID = Field(alias="workplaceId")
     number: int | None = Field(default=None)
     cash_registr_id: uuid.UUID | None = Field(alias="cashRegistrId", default=None)
+
+
+class CashShiftClosedResponse(BaseCashShift):
+    id: uuid.UUID
+    number: Optional[int]
+    date: datetime
+    closed_date: datetime
+    organization_id: uuid.UUID = Field(alias="organizationId")
+    owner_id: uuid.UUID = Field(alias="ownerId")
+    store_id: uuid.UUID = Field(alias="storeId")
+    workplace_id: uuid.UUID = Field(alias="workplaceId")
+    worker_id: uuid.UUID | None = Field(alias="workerId", default=None)
+    cash_registr_id: uuid.UUID | None = Field(alias="cashRegistrId", default=None)
+    closed: bool
+    hide: bool = Field(alias="hidden")
+
+
+class CashShiftClosedWithReceiptsResponse(CashShiftClosedResponse):
+    receipts: list[ReceiptWithPositionsResponse] = Field(alias="cashReceipts")

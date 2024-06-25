@@ -23,6 +23,7 @@ class CashShift(Base):
     worker_id: Mapped[uuid.UUID] = mapped_column(nullable=True)
     cash_registr_id: Mapped[uuid.UUID] = mapped_column(nullable=True)
     closed: Mapped[bool] = mapped_column(nullable=False, default=False)
+    closed_date: Mapped[datetime] = mapped_column(nullable=True, default=None)
     hide: Mapped[bool] = mapped_column(nullable=False, default=False)
 
     checks: Mapped[list["Receipt"]] = relationship(back_populates="cash_shift")
