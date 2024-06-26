@@ -33,8 +33,8 @@ class BaseCashShift(BaseModel):
         return datetime.strftime(date, "%Y-%m-%dT%H:%M:%S")
     
     @field_serializer("closed_date", check_fields=False)
-    def datetime_to_str_close(closed_date: datetime):
-        return datetime.strftime(closed_date, "%Y-%m-%dT%H:%M:%S")
+    def datetime_to_str_close(closed_date: datetime | None):
+        return datetime.strftime(closed_date, "%Y-%m-%dT%H:%M:%S") if closed_date else None
 
 
 class CashShiftResponse(BaseCashShift):
