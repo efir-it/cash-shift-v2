@@ -2,8 +2,11 @@ import datetime
 from typing import Optional
 
 from sqlalchemy import Select, and_, select, true, cast, INTEGER
-
+import logging
 import position_check.utils as position_utils
+from cash_shift.models import CashShift
+
+from cash_shift.schemas import CashShiftWithReceiptsResponse
 from check.models import Receipt
 from check.schemas import ReceiptResponse, ReceiptStatus, ReceiptWithPositionsResponse
 from check.utils import change_format
@@ -218,11 +221,38 @@ class CheckDAO(BaseDAO):
     async def close_receipt(
         cls, filter_by: dict = {}
     ) -> Optional[ReceiptWithPositionsResponse]:
+        from cash_shift.dao import CheckoutShiftDAO as CashShiftDAO
+
+        logger = logging.getLogger(__name__)
+        receipt = await cls.get_one_receipt(filter_by)
+
+        if not receipt:
+            logger.error("Receipt not found")
+            return None
+
+        # Получаем последнюю открытую смены через запрос получения послед смены,
+        # в запрос передаем owner,organization and workplace
+        cash_shift: CashShiftWithReceiptsResponse | None = await CashShiftDAO.get_last_checkout_shift(
+            {
+                "owner_id": filter_by.get('owner_id'),
+                "organization_id": filter_by.get('organization_id'),
+                "workplace_id": filter_by.get('workplace_id'),
+                "closed": False,
+            },
+        )
+
+        # Сравниваем ид кассовой смены в чеке и ид последней кассовой смены полученной через запрос,
+        # если эти ид не равны значит чек ьыл отложенным, а если он был отложенным,
+        # то мы ему перезаписываем ид кассовой смены на текущий
+        # if receipt.__dict__.get("cash_shift_id") != cash_shift.id:
+        #     print(1111111111111111111111111111111)
+
         receipts: list[Receipt] = await cls.update(
             filter_by,
             {
                 "check_status": ReceiptStatus.CLOSED.value,
                 "date": datetime.datetime.utcnow(),
+                "cash_shift_id": cash_shift.id if receipt.__dict__.get("cash_shift_id") != cash_shift.id else receipt.__dict__.get("cash_shift_id")
             },
         )
 

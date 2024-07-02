@@ -93,6 +93,7 @@ class BaseRequest(BaseReceipt):
 
 class ReceiptRequest(BaseRequest):
     id: uuid.UUID = Field(alias="cashReceiptId")
+    workplace_id: uuid.UUID = Field(alias="workplaceId")
 
 
 class ReceiptCreateRequest(BaseRequest):
