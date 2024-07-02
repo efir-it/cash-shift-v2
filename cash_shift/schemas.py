@@ -41,7 +41,7 @@ class CashShiftResponse(BaseCashShift):
     id: uuid.UUID
     number: Optional[int]
     date: datetime
-    closed_date: Optional[datetime] = None
+    closed_date: Optional[datetime] = Field(alias="closedDate", default=None)
     organization_id: uuid.UUID = Field(alias="organizationId")
     owner_id: uuid.UUID = Field(alias="ownerId")
     store_id: uuid.UUID = Field(alias="storeId")
@@ -99,7 +99,7 @@ class CashShiftClosedResponse(BaseCashShift):
     id: uuid.UUID
     number: Optional[int]
     date: datetime
-    closed_date: datetime
+    closed_date: datetime = Field(alias="closedDate")
     organization_id: uuid.UUID = Field(alias="organizationId")
     owner_id: uuid.UUID = Field(alias="ownerId")
     store_id: uuid.UUID = Field(alias="storeId")
